@@ -1,39 +1,41 @@
-Token 
+namespace Logica
 {
-    private string tipo;
-    private string valor;
-    private  int posicion;
-
-    //constructor 
-    public Token (string tipo, string valor, int posicion)
+    public class Token
     {
-        this.tipo = tipo;
-        this.valor = valor;
-        this.posicion = posicion;
-    }
+        private string tipo;
+        private string valor;
+        private int posicion;
 
-    public string Tipo 
-    {
-        get { return tipo; }
-        set { tipo = value; }
-    }
+        // Constructor
+        public Token(string tipo, string valor, int posicion)
+        {
+            this.tipo = tipo;
+            this.valor = valor;
+            this.posicion = posicion;
+        }
 
-    public string valor 
-    {
-        get { return valor;}
-        set { valor = value; }
-    }
+        public string Tipo
+        {
+            get { return tipo; }
+            set { tipo = value; }
+        }
 
-    public int Posicion
-    {
-        get { return posicion;}
-        set { poscion = value; }
-    }
+        public string Valor
+        {
+            get { return valor; }
+            set { valor = value; }
+        }
 
-    //metodo para representar como cadena el token
-    public override string ToString()
-    {
-        return $"Token: {tipo}, Valor: {valor}, Posicion: {posicion}";
-    }
+        public int Posicion
+        {
+            get { return posicion; }
+            set { posicion = value; }
+        }
 
+        // Método para representar como cadena el token
+        public override string ToString()
+        {
+            return $"Token: {tipo}, Valor: {valor}, Posición: {posicion}";
+        }
+    }
 }
