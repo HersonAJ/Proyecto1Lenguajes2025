@@ -4,6 +4,7 @@ using Gtk;
 using System;
 using System.Collections.Generic;
 using Analizadores; // namespace asignado 
+using Logica;
 
 public class Interfaz
 {
@@ -109,20 +110,56 @@ public class Interfaz
         // Obtiene el texto del editor
         string text = textEditor.Buffer.Text;
 
-        // Divide el texto en tokens utilizando espacios y saltos de línea como separadores
-        List<string> tokens = new List<string>(text.Split(new[] { ' ', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries));
+        // Limpia el área de errores
+        errorArea.Buffer.Text = "";
 
         // Instancia del analizador léxico
         AnalizadorLexico analizador = new AnalizadorLexico();
 
-        // Limpia el área de errores
-        errorArea.Buffer.Text = "";
+        // Variables para rastrear posición
+        int posicionActual = 0;
 
-        // Analiza cada token y muestra los resultados en el área de errores
-        foreach (string token in tokens)
+        // Recorre cada carácter en el texto
+        for (int i = 0; i < text.Length; i++)
         {
-            string resultado = analizador.AnalizarToken(token);
-            errorArea.Buffer.Text += $"Token: {token} -> Resultado: {resultado}\n";
+            // Si es un carácter de separación, solo actualiza la posición
+            if (char.IsWhiteSpace(text[i]))
+            {
+                posicionActual++; // Incrementa la posición para espacios, saltos de línea, etc.
+                continue; // Ignora este carácter y pasa al siguiente
+            }
+
+            // Detectar el inicio de un lexema
+            int inicioToken = posicionActual;
+
+            // Identificar el lexema completo
+            int longitudToken = 0;
+            while (i < text.Length && !char.IsWhiteSpace(text[i]))
+            {
+                longitudToken++;
+                i++;
+            }
+
+            // Extraer el lexema
+            string token = text.Substring(inicioToken, longitudToken);
+
+            // Analizar el token
+            Token resultado = analizador.AnalizarToken(token, inicioToken);
+
+            if (resultado != null)
+            {
+                // Si es un token válido, mostrarlo
+                errorArea.Buffer.Text += $"Token: {resultado.Tipo}, Valor: {resultado.Valor}, Posición: {resultado.Posicion}\n";
+            }
+            else
+            {
+                // Si no es válido, mostrar un mensaje de error
+                errorArea.Buffer.Text += $"Error: Token no reconocido -> '{token}' en posición {inicioToken}\n";
+            }
+
+            // Actualizar la posición actual al final del token procesado
+            posicionActual += longitudToken;
+            i--; // Ajustar `i` porque el bucle `for` lo incrementará nuevamente
         }
     }
 }
