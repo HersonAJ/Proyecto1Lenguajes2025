@@ -106,33 +106,92 @@ public class Interfaz
     }
 
 private void AnalizarTexto()
+{
+    // Obtiene el texto del editor
+    string text = textEditor.Buffer.Text;
+
+    // Limpia el área de errores
+    errorArea.Buffer.Text = "";
+
+    // Instancia del analizador léxico
+    AnalizadorLexico analizador = new AnalizadorLexico();
+
+    int posicionActual = 0;
+    bool dentroDeLiteral = false;
+    char comillaInicio = '\0';
+    string tokenActual = "";
+
+    for (int i = 0; i < text.Length; i++)
     {
-        // Obtiene el texto del editor
-        string text = textEditor.Buffer.Text;
+        char caracter = text[i];
 
-        // Limpia el área de errores
-        errorArea.Buffer.Text = "";
-
-        // Instancia del analizador léxico
-        AnalizadorLexico analizador = new AnalizadorLexico();
-
-        int posicionActual = 0;
-        bool dentroDeLiteral = false;
-        char comillaInicio = '\0';
-        string tokenActual = "";
-
-        for (int i = 0; i < text.Length; i++)
+        if (dentroDeLiteral)
         {
-            char caracter = text[i];
+            // Acumular caracteres dentro del literal
+            tokenActual += caracter;
 
-            if (dentroDeLiteral)
+            if (caracter == comillaInicio) // Comilla de cierre encontrada
             {
-                // Acumular caracteres dentro del literal
-                tokenActual += caracter;
-
-                if (caracter == comillaInicio) // Comilla de cierre encontrada
+                // Procesar el literal completo
+                Token resultado = analizador.AnalizarToken(tokenActual, posicionActual);
+                if (resultado != null)
                 {
-                    // Procesar el literal completo
+                    // Si es válido, mostrarlo
+                    errorArea.Buffer.Text += $"Token: {resultado.Tipo}, Valor: {resultado.Valor}, Posición: {resultado.Posicion}\n";
+                }
+                else
+                {
+                    // Si no es válido, mostrar un error
+                    errorArea.Buffer.Text += $"Error: Literal no válido -> {tokenActual} en posición {posicionActual}\n";
+                }
+
+                // Reiniciar el estado
+                dentroDeLiteral = false;
+                comillaInicio = '\0';
+                tokenActual = "";
+                posicionActual = i + 1;
+            }
+        }
+        else
+        {
+            if (caracter == '#') // Inicio de comentario de una sola línea
+            {
+                // Captura todo el contenido hasta el final de la línea
+                int inicioComentario = i;
+                while (i < text.Length && text[i] != '\n')
+                {
+                    tokenActual += text[i];
+                    i++;
+                }
+
+                // Procesar el comentario completo
+                Token resultado = analizador.AnalizarToken(tokenActual, posicionActual);
+                if (resultado != null)
+                {
+                    // Si es válido, mostrarlo
+                    errorArea.Buffer.Text += $"Token: {resultado.Tipo}, Valor: {resultado.Valor}, Posición: {posicionActual}\n";
+                }
+                else
+                {
+                    // Si no es válido, mostrar un error
+                    errorArea.Buffer.Text += $"Error: Comentario no válido -> {tokenActual} en posición {posicionActual}\n";
+                }
+
+                // Reiniciar el token y posición
+                tokenActual = "";
+                posicionActual = i; // Actualiza la posición al final del comentario
+            }
+            else if (caracter == '"' || caracter == '\'') // Inicio de un literal
+            {
+                dentroDeLiteral = true;
+                comillaInicio = caracter;
+                tokenActual += caracter; // Incluir la comilla inicial
+            }
+            else if (char.IsWhiteSpace(caracter))
+            {
+                // Procesar token acumulado fuera del literal
+                if (!string.IsNullOrEmpty(tokenActual))
+                {
                     Token resultado = analizador.AnalizarToken(tokenActual, posicionActual);
                     if (resultado != null)
                     {
@@ -142,64 +201,33 @@ private void AnalizarTexto()
                     else
                     {
                         // Si no es válido, mostrar un error
-                        errorArea.Buffer.Text += $"Error: Literal no válido -> {tokenActual} en posición {posicionActual}\n";
+                        errorArea.Buffer.Text += $"Error: Token no reconocido -> '{tokenActual}' en posición {posicionActual}\n";
                     }
-
-                    // Reiniciar el estado
-                    dentroDeLiteral = false;
-                    comillaInicio = '\0';
-                    tokenActual = "";
-                    posicionActual = i + 1;
+                    tokenActual = ""; // Reiniciar el token
                 }
+                posicionActual = i + 1; // Actualizar posición
             }
             else
             {
-                if (caracter == '"' || caracter == '\'') // Inicio de un literal
-                {
-                    dentroDeLiteral = true;
-                    comillaInicio = caracter;
-                    tokenActual += caracter; // Incluir la comilla inicial
-                }
-                else if (char.IsWhiteSpace(caracter))
-                {
-                    // Procesar token acumulado fuera del literal
-                    if (!string.IsNullOrEmpty(tokenActual))
-                    {
-                        Token resultado = analizador.AnalizarToken(tokenActual, posicionActual);
-                        if (resultado != null)
-                        {
-                            // Si es válido, mostrarlo
-                            errorArea.Buffer.Text += $"Token: {resultado.Tipo}, Valor: {resultado.Valor}, Posición: {resultado.Posicion}\n";
-                        }
-                        else
-                        {
-                            // Si no es válido, mostrar un error
-                            errorArea.Buffer.Text += $"Error: Token no reconocido -> '{tokenActual}' en posición {posicionActual}\n";
-                        }
-                        tokenActual = ""; // Reiniciar el token
-                    }
-                    posicionActual = i + 1; // Actualizar posición
-                }
-                else
-                {
-                    // Acumular caracteres para el token actual
-                    tokenActual += caracter;
-                }
-            }
-        }
-
-        // Procesar cualquier token sobrante
-        if (!string.IsNullOrEmpty(tokenActual))
-        {
-            Token resultado = analizador.AnalizarToken(tokenActual, posicionActual);
-            if (resultado != null)
-            {
-                errorArea.Buffer.Text += $"Token: {resultado.Tipo}, Valor: {resultado.Valor}, Posición: {resultado.Posicion}\n";
-            }
-            else
-            {
-                errorArea.Buffer.Text += $"Error: Token no reconocido -> '{tokenActual}' en posición {posicionActual}\n";
+                // Acumular caracteres para el token actual
+                tokenActual += caracter;
             }
         }
     }
+
+    // Procesar cualquier token sobrante
+    if (!string.IsNullOrEmpty(tokenActual))
+    {
+        Token resultado = analizador.AnalizarToken(tokenActual, posicionActual);
+        if (resultado != null)
+        {
+            errorArea.Buffer.Text += $"Token: {resultado.Tipo}, Valor: {resultado.Valor}, Posición: {resultado.Posicion}\n";
+        }
+        else
+        {
+            errorArea.Buffer.Text += $"Error: Token no reconocido -> '{tokenActual}' en posición {posicionActual}\n";
+        }
+    }
+}
+
 }
