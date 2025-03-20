@@ -21,13 +21,13 @@ namespace Analizadores
         // Método para analizar un token individual y determinar su tipo
         public Token AnalizarToken(string token, int posicion)
         {
-            // 1. Validación de identificadores
-            AnalizadorIdentificador analizadorIdentificador = new AnalizadorIdentificador();
-            Token tokenReconocido = analizadorIdentificador.ProcesarIdentificador(token, posicion);
+            // 1. Validación de decimales
+            AnalizadorDecimal analizadorDecimal = new AnalizadorDecimal();
+            Token tokenReconocido = analizadorDecimal.ProcesarDecimal(token, posicion);
 
             if (tokenReconocido != null)
             {
-                return tokenReconocido; // Retorna el token si es válido
+                return tokenReconocido; // Retorna el token si es un número decimal válido
             }
 
             // 2. Validación de enteros
@@ -39,7 +39,16 @@ namespace Analizadores
                 return tokenReconocido; // Retorna el token si es un entero válido
             }
 
-            // 3. Si el token no coincide con ninguno, registrar el error
+            // 3. Validación de identificadores
+            AnalizadorIdentificador analizadorIdentificador = new AnalizadorIdentificador();
+            tokenReconocido = analizadorIdentificador.ProcesarIdentificador(token, posicion);
+
+            if (tokenReconocido != null)
+            {
+                return tokenReconocido; // Retorna el token si es un identificador válido
+            }
+
+            // 4. Si el token no coincide con ninguno, registrar el error
             errores.Add($"Error: Token no reconocido -> '{token}' en posición {posicion}");
             return null!; // Retorna null si no es válido
         }
@@ -61,7 +70,7 @@ namespace Analizadores
                     tokens.Add(token); // Agregar a la lista de tokens válidos
                 }
 
-                posicion++; // Avanzar la posición (puedes ajustar si necesitas líneas/columnas)
+                posicion++; // Avanzar la posición (ajustar filas y columnas)
             }
 
             // Mostrar los tokens válidos
