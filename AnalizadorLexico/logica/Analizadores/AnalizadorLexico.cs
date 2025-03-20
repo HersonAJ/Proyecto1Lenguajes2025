@@ -105,7 +105,16 @@ namespace Analizadores
                 return tokenReconocido;
             }
 
-            // 10. Si el token no coincide con ninguno, registrar el error
+            //10 validar signos de agrupacion 
+            AnalizadorAgrupacion analizadorAgrupacion = new AnalizadorAgrupacion();
+            tokenReconocido = analizadorAgrupacion.ProcesarSignoAgrupacion(token, posicion);
+
+            if (tokenReconocido != null)
+            {
+                return tokenReconocido;
+            }
+
+            // 11. Si el token no coincide con ninguno, registrar el error
             errores.Add($"Error: Token no reconocido -> '{token}' en posición {posicion}");
             return null!; // Retorna null si no es válido
         }
