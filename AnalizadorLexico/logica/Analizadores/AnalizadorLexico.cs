@@ -78,7 +78,25 @@ namespace Analizadores
                 return tokenReconocido;
             }
 
-            // 7. Si el token no coincide con ninguno, registrar el error
+            //7. validar un operador aritmetico 
+            AnalizadorAritmetico analizadorAritmetico = new AnalizadorAritmetico();
+            tokenReconocido = analizadorAritmetico.ProcesarOperadorAritmetico(token, posicion);
+
+            if (tokenReconocido != null)
+            {
+                return tokenReconocido;
+            }
+
+            //8. validar un operador racionar y de asignacion
+            AnalizadorRelacionalAsignacion analizadorRelacionalAsignacion = new AnalizadorRelacionalAsignacion();
+            tokenReconocido = analizadorRelacionalAsignacion.ProcesarOperador(token , posicion);
+
+            if (tokenReconocido != null) 
+            {
+                return tokenReconocido;
+            }
+
+            // 9. Si el token no coincide con ninguno, registrar el error
             errores.Add($"Error: Token no reconocido -> '{token}' en posición {posicion}");
             return null!; // Retorna null si no es válido
         }

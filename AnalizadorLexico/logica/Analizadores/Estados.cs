@@ -13,6 +13,10 @@ namespace Analizadores
         Q7,
         Q8,
         Q9,
-        QF //estado final o de aceptacion 
+        QF, //estado final o de aceptacion 
+
+        QF_A, //estado de aceptacion para asignacion
+
+        QF_R //estado de aceptacion para racional
     }
 }
