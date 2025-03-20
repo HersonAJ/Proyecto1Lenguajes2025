@@ -48,7 +48,16 @@ namespace Analizadores
                 return tokenReconocido; // Retorna el token si es un identificador válido
             }
 
-            // 4. Si el token no coincide con ninguno, registrar el error
+            //4. validar palabras reservadas
+            AnalizadorPalabraReservada analizadorPalabraReservada = new AnalizadorPalabraReservada();
+            tokenReconocido = analizadorPalabraReservada.ProcesarPalabraReservada(token, posicion);
+
+            if (tokenReconocido != null)
+            {
+                return tokenReconocido;
+            }
+
+            // 5. Si el token no coincide con ninguno, registrar el error
             errores.Add($"Error: Token no reconocido -> '{token}' en posición {posicion}");
             return null!; // Retorna null si no es válido
         }
