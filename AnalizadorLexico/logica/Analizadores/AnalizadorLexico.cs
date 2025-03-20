@@ -96,7 +96,16 @@ namespace Analizadores
                 return tokenReconocido;
             }
 
-            // 9. Si el token no coincide con ninguno, registrar el error
+            // 9 valida los operadores logicos
+            AnalizadorLogico analizadorLogico = new AnalizadorLogico();
+            tokenReconocido = analizadorLogico.ProcesarOperadorLogico(token, posicion);
+
+            if (tokenReconocido != null)
+            {
+                return tokenReconocido;
+            }
+
+            // 10. Si el token no coincide con ninguno, registrar el error
             errores.Add($"Error: Token no reconocido -> '{token}' en posición {posicion}");
             return null!; // Retorna null si no es válido
         }
