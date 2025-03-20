@@ -105,7 +105,7 @@ public class Interfaz
         Application.Run();
     }
 
-    private void AnalizarTexto()
+private void AnalizarTexto()
     {
         // Obtiene el texto del editor
         string text = textEditor.Buffer.Text;
@@ -116,50 +116,90 @@ public class Interfaz
         // Instancia del analizador léxico
         AnalizadorLexico analizador = new AnalizadorLexico();
 
-        // Variables para rastrear posición
         int posicionActual = 0;
+        bool dentroDeLiteral = false;
+        char comillaInicio = '\0';
+        string tokenActual = "";
 
-        // Recorre cada carácter en el texto
         for (int i = 0; i < text.Length; i++)
         {
-            // Si es un carácter de separación, solo actualiza la posición
-            if (char.IsWhiteSpace(text[i]))
+            char caracter = text[i];
+
+            if (dentroDeLiteral)
             {
-                posicionActual++; // Incrementa la posición para espacios, saltos de línea, etc.
-                continue; // Ignora este carácter y pasa al siguiente
+                // Acumular caracteres dentro del literal
+                tokenActual += caracter;
+
+                if (caracter == comillaInicio) // Comilla de cierre encontrada
+                {
+                    // Procesar el literal completo
+                    Token resultado = analizador.AnalizarToken(tokenActual, posicionActual);
+                    if (resultado != null)
+                    {
+                        // Si es válido, mostrarlo
+                        errorArea.Buffer.Text += $"Token: {resultado.Tipo}, Valor: {resultado.Valor}, Posición: {resultado.Posicion}\n";
+                    }
+                    else
+                    {
+                        // Si no es válido, mostrar un error
+                        errorArea.Buffer.Text += $"Error: Literal no válido -> {tokenActual} en posición {posicionActual}\n";
+                    }
+
+                    // Reiniciar el estado
+                    dentroDeLiteral = false;
+                    comillaInicio = '\0';
+                    tokenActual = "";
+                    posicionActual = i + 1;
+                }
             }
-
-            // Detectar el inicio de un lexema
-            int inicioToken = posicionActual;
-
-            // Identificar el lexema completo
-            int longitudToken = 0;
-            while (i < text.Length && !char.IsWhiteSpace(text[i]))
+            else
             {
-                longitudToken++;
-                i++;
+                if (caracter == '"' || caracter == '\'') // Inicio de un literal
+                {
+                    dentroDeLiteral = true;
+                    comillaInicio = caracter;
+                    tokenActual += caracter; // Incluir la comilla inicial
+                }
+                else if (char.IsWhiteSpace(caracter))
+                {
+                    // Procesar token acumulado fuera del literal
+                    if (!string.IsNullOrEmpty(tokenActual))
+                    {
+                        Token resultado = analizador.AnalizarToken(tokenActual, posicionActual);
+                        if (resultado != null)
+                        {
+                            // Si es válido, mostrarlo
+                            errorArea.Buffer.Text += $"Token: {resultado.Tipo}, Valor: {resultado.Valor}, Posición: {resultado.Posicion}\n";
+                        }
+                        else
+                        {
+                            // Si no es válido, mostrar un error
+                            errorArea.Buffer.Text += $"Error: Token no reconocido -> '{tokenActual}' en posición {posicionActual}\n";
+                        }
+                        tokenActual = ""; // Reiniciar el token
+                    }
+                    posicionActual = i + 1; // Actualizar posición
+                }
+                else
+                {
+                    // Acumular caracteres para el token actual
+                    tokenActual += caracter;
+                }
             }
+        }
 
-            // Extraer el lexema
-            string token = text.Substring(inicioToken, longitudToken);
-
-            // Analizar el token
-            Token resultado = analizador.AnalizarToken(token, inicioToken);
-
+        // Procesar cualquier token sobrante
+        if (!string.IsNullOrEmpty(tokenActual))
+        {
+            Token resultado = analizador.AnalizarToken(tokenActual, posicionActual);
             if (resultado != null)
             {
-                // Si es un token válido, mostrarlo
                 errorArea.Buffer.Text += $"Token: {resultado.Tipo}, Valor: {resultado.Valor}, Posición: {resultado.Posicion}\n";
             }
             else
             {
-                // Si no es válido, mostrar un mensaje de error
-                errorArea.Buffer.Text += $"Error: Token no reconocido -> '{token}' en posición {inicioToken}\n";
+                errorArea.Buffer.Text += $"Error: Token no reconocido -> '{tokenActual}' en posición {posicionActual}\n";
             }
-
-            // Actualizar la posición actual al final del token procesado
-            posicionActual += longitudToken;
-            i--; // Ajustar `i` porque el bucle `for` lo incrementará nuevamente
         }
     }
 }

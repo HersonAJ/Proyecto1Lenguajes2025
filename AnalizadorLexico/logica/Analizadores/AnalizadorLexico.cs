@@ -57,7 +57,16 @@ namespace Analizadores
                 return tokenReconocido;
             }
 
-            // 5. Si el token no coincide con ninguno, registrar el error
+            //5. validar literales con comillas simples y dobles
+            AnalizadorLiteral analizadorLiteral = new AnalizadorLiteral();
+            tokenReconocido = analizadorLiteral.ProcesarLiteral(token, posicion);
+
+            if (tokenReconocido != null)
+            {
+                return tokenReconocido;
+            }
+
+            // 6. Si el token no coincide con ninguno, registrar el error
             errores.Add($"Error: Token no reconocido -> '{token}' en posición {posicion}");
             return null!; // Retorna null si no es válido
         }
