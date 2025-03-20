@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Logica;
+using Analizadores;
 
 namespace Analizadores
 {
@@ -66,7 +67,18 @@ namespace Analizadores
                 return tokenReconocido;
             }
 
-            // 6. Si el token no coincide con ninguno, registrar el error
+
+
+            //6. validar signos de puntuacion
+            AnalizadorSignosPuntuacion analizadorSignosPuntuacion = new AnalizadorSignosPuntuacion();
+            tokenReconocido = analizadorSignosPuntuacion.ProcesarSignoPuntuacion(token, posicion);
+
+            if (tokenReconocido != null)
+            {
+                return tokenReconocido;
+            }
+
+            // 7. Si el token no coincide con ninguno, registrar el error
             errores.Add($"Error: Token no reconocido -> '{token}' en posición {posicion}");
             return null!; // Retorna null si no es válido
         }
