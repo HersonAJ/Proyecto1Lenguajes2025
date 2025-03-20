@@ -30,7 +30,16 @@ namespace Analizadores
                 return tokenReconocido; // Retorna el token si es válido
             }
 
-            // Si el token no coincide con ninguno, registrar el error
+            // 2. Validación de enteros
+            AnalizadorEntero analizadorEntero = new AnalizadorEntero();
+            tokenReconocido = analizadorEntero.ProcesarEntero(token, posicion);
+
+            if (tokenReconocido != null)
+            {
+                return tokenReconocido; // Retorna el token si es un entero válido
+            }
+
+            // 3. Si el token no coincide con ninguno, registrar el error
             errores.Add($"Error: Token no reconocido -> '{token}' en posición {posicion}");
             return null!; // Retorna null si no es válido
         }
