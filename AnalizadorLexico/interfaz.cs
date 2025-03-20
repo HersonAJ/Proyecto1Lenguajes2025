@@ -154,32 +154,71 @@ private void AnalizarTexto()
         }
         else
         {
-            if (caracter == '#') // Inicio de comentario de una sola línea
+            if (caracter == '#' || (caracter == '/' && i + 1 < text.Length && text[i + 1] == '*'))
             {
-                // Captura todo el contenido hasta el final de la línea
-                int inicioComentario = i;
-                while (i < text.Length && text[i] != '\n')
+                // Detecta el inicio de un comentario
+                if (caracter == '#') // Comentario de una sola línea
                 {
-                    tokenActual += text[i];
-                    i++;
-                }
+                    int inicioComentario = i;
+                    while (i < text.Length && text[i] != '\n')
+                    {
+                        tokenActual += text[i];
+                        i++;
+                    }
 
-                // Procesar el comentario completo
-                Token resultado = analizador.AnalizarToken(tokenActual, posicionActual);
-                if (resultado != null)
-                {
-                    // Si es válido, mostrarlo
-                    errorArea.Buffer.Text += $"Token: {resultado.Tipo}, Valor: {resultado.Valor}, Posición: {posicionActual}\n";
-                }
-                else
-                {
-                    // Si no es válido, mostrar un error
-                    errorArea.Buffer.Text += $"Error: Comentario no válido -> {tokenActual} en posición {posicionActual}\n";
-                }
+                    // Procesar el comentario completo
+                    Token resultado = analizador.AnalizarToken(tokenActual, posicionActual);
+                    if (resultado != null)
+                    {
+                        // Si es válido, mostrarlo
+                        errorArea.Buffer.Text += $"Token: {resultado.Tipo}, Valor: {resultado.Valor}, Posición: {posicionActual}\n";
+                    }
+                    else
+                    {
+                        // Si no es válido, mostrar un error
+                        errorArea.Buffer.Text += $"Error: Comentario no válido -> {tokenActual} en posición {posicionActual}\n";
+                    }
 
-                // Reiniciar el token y posición
-                tokenActual = "";
-                posicionActual = i; // Actualiza la posición al final del comentario
+                    // Reiniciar el token y posición
+                    tokenActual = "";
+                    posicionActual = i;
+                }
+                else if (caracter == '/' && text[i + 1] == '*') // Comentario en bloque
+                {
+                    // Captura el inicio del comentario bloque
+                    tokenActual += "/*";
+                    i += 2; // Avanza después de /*
+
+                    while (i < text.Length)
+                    {
+                        tokenActual += text[i];
+                        if (text[i] == '*' && i + 1 < text.Length && text[i + 1] == '/')
+                        {
+                            // Fin del comentario en bloque
+                            tokenActual += '/';
+                            i++; // Avanzar después de */
+                            break;
+                        }
+                        i++;
+                    }
+
+                    // Procesar el comentario completo
+                    Token resultado = analizador.AnalizarToken(tokenActual, posicionActual);
+                    if (resultado != null)
+                    {
+                        // Si es válido, mostrarlo
+                        errorArea.Buffer.Text += $"Token: {resultado.Tipo}, Valor: {resultado.Valor}, Posición: {posicionActual}\n";
+                    }
+                    else
+                    {
+                        // Si no es válido, mostrar un error
+                        errorArea.Buffer.Text += $"Error: Comentario en bloque no válido -> {tokenActual} en posición {posicionActual}\n";
+                    }
+
+                    // Reiniciar el token y posición
+                    tokenActual = "";
+                    posicionActual = i + 1;
+                }
             }
             else if (caracter == '"' || caracter == '\'') // Inicio de un literal
             {
@@ -229,5 +268,6 @@ private void AnalizarTexto()
         }
     }
 }
+
 
 }

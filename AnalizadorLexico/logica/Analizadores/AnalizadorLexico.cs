@@ -114,7 +114,7 @@ namespace Analizadores
                 return tokenReconocido;
             }
 
-            // validar comentario de una sola linea
+            // 11 validar comentario de una sola linea
             AnalizadorComentarioSimple analizadorComentarioSimple = new AnalizadorComentarioSimple();
             tokenReconocido = analizadorComentarioSimple.ProcesarComentarioSimple(token, posicion);
 
@@ -123,7 +123,16 @@ namespace Analizadores
                 return tokenReconocido;
             }
 
-            // 12. Si el token no coincide con ninguno, registrar el error
+            // 12 validar comentarios en bloque
+            AnalizadorComentarioBloque analizadorComentarioBloque = new AnalizadorComentarioBloque();
+            tokenReconocido = analizadorComentarioBloque.ProcesarComentarioBloque(token, posicion);
+
+            if (tokenReconocido != null)
+            {
+                return tokenReconocido;
+            }
+
+            // 13. Si el token no coincide con ninguno, registrar el error
             errores.Add($"Error: Token no reconocido -> '{token}' en posición {posicion}");
             return null!; // Retorna null si no es válido
         }
