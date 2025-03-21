@@ -18,6 +18,11 @@ public class Interfaz
     private Analizador analizador;
     private AbrirArchivo abrirArchivo;
     private GuardarArchivo guardarArchivo;
+    //Nuevos elementos para busqueda de patrones
+    private Entry patronBusqueda;
+    private Button botonBuscar;
+    private Label labelCoincidencias;
+    private BusquedaPatrones busquedaPatrones;
 
     public Interfaz()
     {
@@ -104,7 +109,6 @@ public class Interfaz
         // Funcionalidad de "Acerca de"
         aboutMenuItem.Activated += (o, e) =>
         {
-        
             using (MessageDialog acercaDeDialogo = new MessageDialog(
                 mainWindow, // Establecer como padre la ventana principal
                 DialogFlags.Modal,
@@ -197,9 +201,33 @@ public class Interfaz
         ScrolledWindow errorScroll = new ScrolledWindow();
         errorScroll.Add(errorArea);
 
+        // Elementos para la búsqueda de patrones
+        patronBusqueda = new Entry();
+        patronBusqueda.PlaceholderText = "Buscar...";
+        botonBuscar = new Button("Buscar");
+        labelCoincidencias = new Label("Coincidencias: 0");
+
+        // Funcionalidad para el botón Buscar
+        botonBuscar.Clicked += (o, e) =>
+        {
+            string patron = patronBusqueda.Text;
+            int coincidencias = busquedaPatrones!.BuscarYResaltar(patron);
+            labelCoincidencias.Text = $"Coincidencias: {coincidencias}";
+        };
+
+        // Contenedor horizontal para la búsqueda, botón analizar y posicion
+        Box botonBusquedaPosicionContainer = new Box(Orientation.Horizontal, 5);
+        botonBusquedaPosicionContainer.PackStart(analizarButton, false, false, 0);
+        botonBusquedaPosicionContainer.PackStart(patronBusqueda, true, true, 0);
+        botonBusquedaPosicionContainer.PackStart(botonBuscar, false, false, 0);
+        botonBusquedaPosicionContainer.PackStart(labelCoincidencias, false, false, 0);
+        botonBusquedaPosicionContainer.PackStart(cursorPosition, false, false, 0);
+
+        // Inicializar la instancia de BusquedaPatrones
+        busquedaPatrones = new BusquedaPatrones(textEditor);
+
         mainLayout.PackStart(editorContainer, true, true, 0);
-        mainLayout.PackStart(cursorPosition, false, false, 0);
-        mainLayout.PackStart(analizarButton, false, false, 0);
+        mainLayout.PackStart(botonBusquedaPosicionContainer, false, false, 0); // Añadir el contenedor de búsqueda, botón analizar y posicion
         mainLayout.PackStart(errorScroll, true, true, 0);
 
         mainWindow.Add(mainLayout);

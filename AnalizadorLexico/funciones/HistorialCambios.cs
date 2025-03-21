@@ -30,8 +30,7 @@ namespace Funciones
             {
                 if (esCambioProgramatico)
                 {
-                    // Si el cambio fue programático, no registrar el estado
-                    Console.WriteLine($"[HistorialCambios] Cambio programático ignorado.");
+                
                     return;
                 }
 
@@ -40,7 +39,6 @@ namespace Funciones
                 // Registrar cambios solo si el texto es diferente
                 if (estadoActual != ultimoEstado)
                 {
-                    Console.WriteLine($"[HistorialCambios] Cambio detectado. Guardando en pilaDeshacer: {estadoActual}");
                     pilaDeshacer.Push(estadoActual);
                     ultimoEstado = estadoActual;
 
