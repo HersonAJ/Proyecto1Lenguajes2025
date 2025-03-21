@@ -6,21 +6,23 @@ public class Analizador
 {
     public string AnalizarTexto(string texto)
     {
-        string resultado = ""; // Resultado acumulado
+        string resultado = ""; // Resultado acumulado de los tokens analizados
         AnalizadorLexico analizador = new AnalizadorLexico();
 
-        int posicionActual = 0;
-        bool dentroDeLiteral = false;
-        char comillaInicio = '\0';
-        string tokenActual = "";
+        int posicionActual = 0; // Posición actual del carácter analizado
+        bool dentroDeLiteral = false; // Indica si estamos dentro de un literal
+        char comillaInicio = '\0'; // Delimitador de inicio de literal
+        string tokenActual = ""; // Acumula el token en construcción
 
+        // Bucle principal para analizar el texto carácter por carácter
         for (int i = 0; i < texto.Length; i++)
         {
             char caracter = texto[i];
 
             if (dentroDeLiteral)
             {
-                // Acumular caracteres dentro del literal
+                // *** Análisis de Literales ***
+                // Estamos dentro de un literal, acumulamos caracteres hasta encontrar la comilla de cierre
                 tokenActual += caracter;
 
                 if (caracter == comillaInicio) // Comilla de cierre encontrada
@@ -38,7 +40,7 @@ public class Analizador
                         resultado += $"Error: Literal no válido -> {tokenActual} en posición {posicionActual}\n";
                     }
 
-                    // Reiniciar el estado
+                    // Reiniciar el estado para salir del literal
                     dentroDeLiteral = false;
                     comillaInicio = '\0';
                     tokenActual = "";
@@ -47,10 +49,11 @@ public class Analizador
             }
             else
             {
+                // *** Inicio del análisis de comentarios (simples y en bloque) ***
                 if (caracter == '#' || (caracter == '/' && i + 1 < texto.Length && texto[i + 1] == '*'))
                 {
-                    // Detecta el inicio de un comentario
-                    if (caracter == '#') // Comentario de una sola línea
+                    // Comentarios simples
+                    if (caracter == '#')
                     {
                         while (i < texto.Length && texto[i] != '\n')
                         {
@@ -58,7 +61,7 @@ public class Analizador
                             i++;
                         }
 
-                        // Procesar el comentario completo
+                        // Procesar el comentario completo como un token
                         Token resultadoToken = analizador.AnalizarToken(tokenActual, posicionActual);
                         if (resultadoToken != null)
                         {
@@ -73,11 +76,11 @@ public class Analizador
                         tokenActual = "";
                         posicionActual = i;
                     }
-                    else if (caracter == '/' && texto[i + 1] == '*') // Comentario en bloque
+                    // Comentarios en bloque
+                    else if (caracter == '/' && texto[i + 1] == '*')
                     {
-                        // Captura el inicio del comentario bloque
-                        tokenActual += "/*";
-                        i += 2; // Avanza después de /*
+                        tokenActual += "/*"; // Agregar inicio del comentario
+                        i += 2; // Avanzar después de /*
 
                         while (i < texto.Length)
                         {
@@ -86,13 +89,13 @@ public class Analizador
                             {
                                 // Fin del comentario en bloque
                                 tokenActual += '/';
-                                i++; // Avanzar después de */
+                                i++;
                                 break;
                             }
                             i++;
                         }
 
-                        // Procesar el comentario completo
+                        // Procesar el comentario en bloque como un token
                         Token resultadoToken = analizador.AnalizarToken(tokenActual, posicionActual);
                         if (resultadoToken != null)
                         {
@@ -108,15 +111,17 @@ public class Analizador
                         posicionActual = i + 1;
                     }
                 }
-                else if (caracter == '"' || caracter == '\'') // Inicio de un literal
+                // *** Inicio del análisis de literales ***
+                else if (caracter == '"' || caracter == '\'') // Identifica inicio de un literal
                 {
                     dentroDeLiteral = true;
                     comillaInicio = caracter;
                     tokenActual += caracter; // Incluir la comilla inicial
                 }
+                // *** Manejo de separadores (espacios en blanco) ***
                 else if (char.IsWhiteSpace(caracter))
                 {
-                    // Procesar token acumulado fuera del literal
+                    // Procesar token acumulado antes del espacio
                     if (!string.IsNullOrEmpty(tokenActual))
                     {
                         Token resultadoToken = analizador.AnalizarToken(tokenActual, posicionActual);
@@ -132,15 +137,46 @@ public class Analizador
                     }
                     posicionActual = i + 1; // Actualizar posición
                 }
+                // *** Manejo de signos de agrupación ***
+                else if ("()[]{}".Contains(caracter))
+                {
+                    // Procesar el token acumulado antes del signo
+                    if (!string.IsNullOrEmpty(tokenActual))
+                    {
+                        Token resultadoToken = analizador.AnalizarToken(tokenActual, posicionActual);
+                        if (resultadoToken != null)
+                        {
+                            resultado += $"Token: {resultadoToken.Tipo}, Valor: {resultadoToken.Valor}, Posición: {resultadoToken.Posicion}\n";
+                        }
+                        else
+                        {
+                            resultado += $"Error: Token no reconocido -> '{tokenActual}' en posición {posicionActual}\n";
+                        }
+                        tokenActual = ""; // Reiniciar el token
+                    }
+
+                    // Procesar el signo de agrupación como un token individual
+                    Token signoToken = analizador.AnalizarToken(caracter.ToString(), i);
+                    if (signoToken != null)
+                    {
+                        resultado += $"Token: {signoToken.Tipo}, Valor: {signoToken.Valor}, Posición: {i}\n";
+                    }
+                    else
+                    {
+                        resultado += $"Error: Token no reconocido -> '{caracter}' en posición {i}\n";
+                    }
+
+                    posicionActual = i + 1;
+                }
+                // *** Acumulación de otros tokens (identificadores, números, etc.) ***
                 else
                 {
-                    // Acumular caracteres para el token actual
                     tokenActual += caracter;
                 }
             }
         }
 
-        // Procesar cualquier token sobrante
+        // *** Procesar cualquier token sobrante ***
         if (!string.IsNullOrEmpty(tokenActual))
         {
             Token resultadoToken = analizador.AnalizarToken(tokenActual, posicionActual);

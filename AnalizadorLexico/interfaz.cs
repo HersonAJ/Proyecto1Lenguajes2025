@@ -76,7 +76,7 @@ public class Interfaz
         textEditor.StyleContext.AddClass("custom-editor");
         textEditor.Buffer.Changed += (o, e) => UpdateLineNumbers(); // Actualiza números de línea en cada cambio
         textEditor.CursorVisible = true; // Asegurar que el cursor sea visible
-        textEditor.GrabFocus();
+        //textEditor.GrabFocus();
         ScrolledWindow editorScroll = new ScrolledWindow();
         editorScroll.Add(textEditor);
 
