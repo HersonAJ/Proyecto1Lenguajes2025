@@ -3,6 +3,7 @@ using System;
 using System.Text;
 using Logica;
 using Analizadores;
+using Funciones;
 
 public class Interfaz
 {
@@ -15,6 +16,7 @@ public class Interfaz
     private TextView errorArea;
     private Button analizarButton;
     private Analizador analizador;
+    private AbrirArchivo abrirArchivo;
 
     public Interfaz()
     {
@@ -55,6 +57,30 @@ public class Interfaz
         fileSubMenu.Append(openFile);
         fileSubMenu.Append(saveFile);
         fileSubMenu.Append(saveAsFile);
+        //codigo para abrir el archivo
+abrirArchivo = new AbrirArchivo();
+openFile.Activated += (o, e) =>
+{
+    try
+    {
+        // Intentar abrir el archivo y mostrarlo en el editor
+        abrirArchivo.Abrir(textEditor!);
+    }
+    catch (Exception ex)
+    {
+        // Mostrar un mensaje de error si ocurre un problema
+        MessageDialog errorDialog = new MessageDialog(
+            null,
+            DialogFlags.Modal,
+            MessageType.Error,
+            ButtonsType.Ok,
+            $"Se produjo un error al intentar abrir el archivo: {ex.Message}"
+        );
+        errorDialog.Run();
+        errorDialog.Destroy();
+    }
+};
+
 
         menuBar.Append(fileMenu);
         menuBar.Append(editMenu);

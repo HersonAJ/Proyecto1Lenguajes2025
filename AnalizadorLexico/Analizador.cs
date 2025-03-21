@@ -6,6 +6,8 @@ public class Analizador
 {
     public string AnalizarTexto(string texto)
     {
+        try
+        {
         string resultado = ""; // Resultado acumulado de los tokens analizados
         AnalizadorLexico analizador = new AnalizadorLexico();
 
@@ -192,4 +194,10 @@ public class Analizador
 
         return resultado; // Devuelve el resultado del análisis como una cadena
     }
+    catch (Exception ex)
+    {
+        //si algo falla
+        return $"Error critico durante el analisis: {ex.Message}";
+    }
+}
 }
