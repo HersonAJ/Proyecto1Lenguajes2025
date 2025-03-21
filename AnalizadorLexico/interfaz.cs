@@ -17,6 +17,7 @@ public class Interfaz
     private Button analizarButton;
     private Analizador analizador;
     private AbrirArchivo abrirArchivo;
+    private GuardarArchivo guardarArchivo;
 
     public Interfaz()
     {
@@ -59,28 +60,45 @@ public class Interfaz
         fileSubMenu.Append(saveAsFile);
         //codigo para abrir el archivo
 abrirArchivo = new AbrirArchivo();
-openFile.Activated += (o, e) =>
-{
-    try
-    {
-        // Intentar abrir el archivo y mostrarlo en el editor
-        abrirArchivo.Abrir(textEditor!);
-    }
-    catch (Exception ex)
-    {
-        // Mostrar un mensaje de error si ocurre un problema
-        MessageDialog errorDialog = new MessageDialog(
-            null,
-            DialogFlags.Modal,
-            MessageType.Error,
-            ButtonsType.Ok,
-            $"Se produjo un error al intentar abrir el archivo: {ex.Message}"
-        );
-        errorDialog.Run();
-        errorDialog.Destroy();
-    }
-};
+guardarArchivo = new GuardarArchivo();
 
+        // Funcionalidad para Abrir
+        openFile.Activated += (o, e) =>
+        {
+            try
+            {
+                string? rutaCargada = abrirArchivo.Abrir(textEditor); // Cargar el archivo y obtener su ruta
+                if (!string.IsNullOrEmpty(rutaCargada))
+                {
+                    guardarArchivo.EstablecerRutaArchivo(rutaCargada); // Actualizar la ruta del archivo actual
+                }
+            }
+            catch (Exception ex)
+            {
+                // Manejar cualquier error al abrir un archivo
+                MessageDialog errorDialog = new MessageDialog(
+                    null,
+                    DialogFlags.Modal,
+                    MessageType.Error,
+                    ButtonsType.Ok,
+                    $"Error al abrir el archivo: {ex.Message}"
+                );
+                errorDialog.Run();
+                errorDialog.Destroy();
+            }
+        };
+
+        // Funcionalidad para Guardar
+        saveFile.Activated += (o, e) =>
+        {
+            guardarArchivo.Guardar(textEditor!);
+        };
+
+        // Funcionalidad para Guardar Como
+        saveAsFile.Activated += (o, e) =>
+        {
+            guardarArchivo.GuardarComo(textEditor!);
+        };
 
         menuBar.Append(fileMenu);
         menuBar.Append(editMenu);

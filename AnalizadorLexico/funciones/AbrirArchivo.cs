@@ -7,9 +7,11 @@ namespace Funciones
     {
         ///<summary>
         /// Método para abrir un archivo, validar su contenido y extraerlo al editor de texto.
+        /// Retorna la ruta del archivo abierto, o null si no se seleccionó ningún archivo.
         ///</summary>
         ///<param name="textEditor">TextView en donde se mostrará el contenido extraído.</param>
-        public void Abrir(TextView textEditor)
+        ///<returns>La ruta del archivo abierto, o null si no se seleccionó un archivo.</returns>
+        public string? Abrir(TextView? textEditor)
         {
             // Usar un bloque 'using' para el file chooser
             using (FileChooserDialog fileChooser = new FileChooserDialog(
@@ -27,7 +29,7 @@ namespace Funciones
                     if (!File.Exists(filePath))
                     {
                         MostrarError("El archivo seleccionado no existe.");
-                        return;
+                        return null;
                     }
 
                     string fileContent = File.ReadAllText(filePath);
@@ -35,13 +37,22 @@ namespace Funciones
                     if (string.IsNullOrWhiteSpace(fileContent))
                     {
                         MostrarError("El archivo está vacío.");
-                        return;
+                        return null;
                     }
 
-                    // Mostrar el contenido obtenido en el editor de texto
-                    textEditor.Buffer.Text = fileContent;
+                    // Validar que textEditor no sea null antes de asignar el contenido
+                    if (textEditor != null)
+                    {
+                        textEditor.Buffer.Text = fileContent;
+                    }
+
+                    // Retornar la ruta del archivo cargado
+                    return filePath;
                 }
             }
+
+            // Si se cancela el diálogo, retornar null
+            return null;
         }
 
         ///<summary>
