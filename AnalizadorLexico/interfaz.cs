@@ -1,10 +1,8 @@
-
-
 using Gtk;
 using System;
-using System.Collections.Generic;
-using Analizadores; // namespace asignado 
+using System.Text;
 using Logica;
+using Analizadores;
 
 public class Interfaz
 {
@@ -12,6 +10,7 @@ public class Interfaz
     private Box mainLayout;
     private MenuBar menuBar;
     private TextView textEditor;
+    private TextView lineNumberArea; // Área para los números de línea
     private Label cursorPosition;
     private TextView errorArea;
     private Button analizarButton;
@@ -60,11 +59,29 @@ public class Interfaz
         menuBar.Append(editMenu);
         menuBar.Append(helpMenu);
 
-        // Editor de texto
+        // Contenedor horizontal para la numeración de líneas y el editor
+        Box editorContainer = new Box(Orientation.Horizontal, 0);
+
+        // Área para los números de línea
+        lineNumberArea = new TextView();
+        lineNumberArea.Editable = false;
+        lineNumberArea.WrapMode = WrapMode.None;
+        lineNumberArea.StyleContext.AddClass("line-number-area");
+        ScrolledWindow lineNumberScroll = new ScrolledWindow();
+        lineNumberScroll.Add(lineNumberArea);
+
+        // Editor de texto principal
         textEditor = new TextView();
         textEditor.StyleContext.AddClass("custom-editor");
+        textEditor.Buffer.Changed += (o, e) => UpdateLineNumbers(); // Actualiza números de línea en cada cambio
+        textEditor.CursorVisible = true; // Asegurar que el cursor sea visible
+        textEditor.GrabFocus();
         ScrolledWindow editorScroll = new ScrolledWindow();
         editorScroll.Add(textEditor);
+
+        // Añadir las áreas al contenedor horizontal
+        editorContainer.PackStart(lineNumberScroll, false, false, 0);
+        editorContainer.PackStart(editorScroll, true, true, 0);
 
         // Indicador de línea y columna
         cursorPosition = new Label("Línea: 1, Columna: 1");
@@ -90,7 +107,7 @@ public class Interfaz
 
         // Agregar componentes al contenedor principal
         mainLayout.PackStart(menuBar, false, false, 0);
-        mainLayout.PackStart(editorScroll, true, true, 0);
+        mainLayout.PackStart(editorContainer, true, true, 0);
         mainLayout.PackStart(cursorPosition, false, false, 0);
         mainLayout.PackStart(analizarButton, false, false, 0);
         mainLayout.PackStart(errorScroll, true, true, 0);
@@ -98,6 +115,25 @@ public class Interfaz
         // Configurar y mostrar ventana
         mainWindow.Add(mainLayout);
         mainWindow.ShowAll();
+
+        // Inicializar números de línea
+        UpdateLineNumbers();
+    }
+
+    private void UpdateLineNumbers()
+    {
+        // Obtener la cantidad de líneas en el editor de texto
+        int totalLines = textEditor.Buffer.LineCount;
+
+        // Crear los números de línea
+        StringBuilder lineNumbers = new StringBuilder();
+        for (int i = 1; i <= totalLines; i++)
+        {
+            lineNumbers.AppendLine(i.ToString());
+        }
+
+        // Actualizar el área de números de línea
+        lineNumberArea.Buffer.Text = lineNumbers.ToString();
     }
 
     public void Run()
