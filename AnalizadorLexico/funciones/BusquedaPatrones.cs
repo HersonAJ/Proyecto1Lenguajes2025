@@ -1,4 +1,5 @@
 using Gtk;
+using Analizadores;
 
 namespace Funciones
 {
@@ -11,14 +12,16 @@ namespace Funciones
             this.textEditor = textEditor;
         }
 
-        ///<summary>
-        /// Método para buscar y resaltar un patrón en el editor de texto.
-        ///</summary>
-        ///<param name="patron">Cadena a buscar.</param>
-        ///<returns>Número de coincidencias encontradas.</returns>
         public int BuscarYResaltar(string patron)
         {
-            // Limpiar resaltados previos
+            Console.WriteLine($"[INFO] Iniciando búsqueda del patrón: {patron}");
+
+            if (string.IsNullOrEmpty(patron))
+            {
+                Console.WriteLine("[ERROR] El patrón de búsqueda está vacío.");
+                return 0;
+            }
+
             LimpiarResaltados();
 
             TextTagTable tagTable = textEditor.Buffer.TagTable;
@@ -26,32 +29,44 @@ namespace Funciones
             {
                 TextTag highlightTag = new TextTag("highlight")
                 {
-                    Background = "yellow" // Color de resaltado
+                    Background = "yellow"
                 };
                 tagTable.Add(highlightTag);
             }
 
-            // Buscar el patrón en el texto del editor
             string textoCompleto = textEditor.Buffer.Text;
+
             int coincidencias = 0;
+            int longitudPatron = patron.Length;
 
-            TextIter startIter = textEditor.Buffer.StartIter;
-            TextIter matchStart, matchEnd;
-
-            // Ajuste para el argumento 'limit' en ForwardSearch
-            while (startIter.ForwardSearch(patron, TextSearchFlags.TextOnly, out matchStart, out matchEnd, textEditor.Buffer.EndIter))
+            for (int i = 0; i <= textoCompleto.Length - longitudPatron; i++)
             {
-                textEditor.Buffer.ApplyTag("highlight", matchStart, matchEnd); // Aplicar resaltado
-                startIter = matchEnd; // Continuar buscando después de la coincidencia
-                coincidencias++;
+                bool esCoincidenciaExacta = true;
+
+                // Verificar si los caracteres antes y después de la coincidencia no son parte de una palabra más larga
+                if (i > 0 && char.IsLetterOrDigit(textoCompleto[i - 1]))
+                {
+                    esCoincidenciaExacta = false;
+                }
+                else if (i + longitudPatron < textoCompleto.Length && char.IsLetterOrDigit(textoCompleto[i + longitudPatron]))
+                {
+                    esCoincidenciaExacta = false;
+                }
+
+                // Verificar si el patrón coincide en la posición actual
+                if (esCoincidenciaExacta && textoCompleto.Substring(i, longitudPatron) == patron)
+                {
+                    coincidencias++;
+                    TextIter matchStart = textEditor.Buffer.GetIterAtOffset(i);
+                    TextIter matchEnd = textEditor.Buffer.GetIterAtOffset(i + longitudPatron);
+                    textEditor.Buffer.ApplyTag("highlight", matchStart, matchEnd);
+                }
             }
 
+            Console.WriteLine($"[INFO] Búsqueda completada. Total de coincidencias: {coincidencias}");
             return coincidencias;
         }
 
-        ///<summary>
-        /// Método para limpiar los resaltados previos en el editor de texto.
-        ///</summary>
         private void LimpiarResaltados()
         {
             TextTagTable tagTable = textEditor.Buffer.TagTable;
