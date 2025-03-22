@@ -44,7 +44,7 @@ namespace Analizadores
             return estadoActual;
         }
 
-        public Token ProcesarLiteral(string token, int posicion)
+        public Token ProcesarLiteral(string token, int fila, int columna)
         {
             estadoActual = Estado.Q0; // Reiniciar al estado inicial
             comillaInicio = '\0'; // Limpiar la comilla inicial
@@ -61,7 +61,7 @@ namespace Analizadores
             // Solo válido si termina en el estado QF
             if (estadoActual == Estado.QF)
             {
-                return new Token("Literal", token, posicion);
+                return new Token("Literal", token, fila, columna);
             }
 
             // Si no termina en QF, no es un literal válido

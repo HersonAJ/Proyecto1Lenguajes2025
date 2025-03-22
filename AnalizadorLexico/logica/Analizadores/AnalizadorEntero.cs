@@ -67,7 +67,7 @@ namespace Analizadores
             return estadoActual;
         }
 
-        public Token ProcesarEntero(string token, int posicion)
+        public Token ProcesarEntero(string token, int fila, int columna)
         {
             estadoActual = Estado.Q0; // Reiniciar siempre al estado inicial
 
@@ -79,7 +79,7 @@ namespace Analizadores
             // Si termina en el estado de aceptación (QF o Q2), el número es válido
             if (estadoActual == Estado.QF || estadoActual == Estado.Q2)
             {
-                return new Token("Entero", token, posicion);
+                return new Token("Entero", token, fila, columna);
             }
 
             // Si no termina en estado de aceptación, no es válido

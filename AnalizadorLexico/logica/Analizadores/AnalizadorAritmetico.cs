@@ -30,7 +30,7 @@ namespace Analizadores
             return estadoActual;
         }
 
-        public Token ProcesarOperadorAritmetico(string token, int posicion)
+        public Token ProcesarOperadorAritmetico(string token, int fila, int columna)
         {
             estadoActual = Estado.Q0; // Reiniciar al estado inicial
 
@@ -41,7 +41,7 @@ namespace Analizadores
 
                 if (estadoActual == Estado.QF)
                 {
-                    return new Token("OperadorAritmetico", token, posicion);
+                    return new Token("OperadorAritmetico", token, fila, columna);
                 }
             }
 

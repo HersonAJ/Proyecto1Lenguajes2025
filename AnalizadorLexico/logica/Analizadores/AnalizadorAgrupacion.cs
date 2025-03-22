@@ -36,7 +36,7 @@ namespace Analizadores
             return estadoActual;
         }
 
-        public Token ProcesarSignoAgrupacion(string token, int posicion)
+        public Token ProcesarSignoAgrupacion(string token, int fila, int columna)
         {
             estadoActual = Estado.Q0; // Reiniciar al estado inicial
 
@@ -47,7 +47,7 @@ namespace Analizadores
 
                 if (estadoActual == Estado.QF)
                 {
-                    return new Token("SignoAgrupacion", token, posicion);
+                    return new Token("SignoAgrupacion", token, fila, columna);
                 }
             }
 

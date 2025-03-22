@@ -55,7 +55,7 @@ namespace Analizadores
             return estadoActual;
         }
 
-        public Token ProcesarOperador(string token, int posicion)
+        public Token ProcesarOperador(string token, int fila, int columna)
         {
             estadoActual = Estado.Q0; // Reiniciar al estado inicial
             int longitud = token.Length;
@@ -73,15 +73,15 @@ namespace Analizadores
             // Clasificar el token según el estado final
             if (estadoActual == Estado.QF_R && longitud <= 2)
             {
-                return new Token("OperadorRelacional", token, posicion);
+                return new Token("OperadorRelacional", token, fila, columna);
             }
             else if (estadoActual == Estado.QF_A && longitud == 1)
             {
-                return new Token("OperadorAsignacion", token, posicion);
+                return new Token("OperadorAsignacion", token, fila, columna);
             }
             else if (estadoActual == Estado.Q1) // Asegurar que < y > sean aceptados
             {
-                return new Token("OperadorRelacional", token, posicion);
+                return new Token("OperadorRelacional", token, fila, columna);
             }
 
             return null!; // No es un operador válido

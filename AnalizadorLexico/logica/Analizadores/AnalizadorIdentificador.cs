@@ -51,7 +51,7 @@ namespace Analizadores
             return estadoActual;
         }
 
-        public Token ProcesarIdentificador(string token, int posicion)
+        public Token ProcesarIdentificador(string token, int fila, int columna)
         {
             estadoActual = Estado.Q0; // Reiniciar siempre al estado inicial
 
@@ -64,7 +64,7 @@ namespace Analizadores
             if (estadoActual == Estado.Q2 || estadoActual == Estado.QF)
             {
                 estadoActual = Estado.QF; // Asegurar que se alcance QF
-                return new Token("Identificador", token, posicion);
+                return new Token("Identificador", token, fila, columna);
             }
 
             // Retornar null si no es un identificador válido

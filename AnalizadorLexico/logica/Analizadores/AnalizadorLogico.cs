@@ -81,7 +81,7 @@ namespace Analizadores
             return estadoActual;
         }
 
-        public Token ProcesarOperadorLogico(string token, int posicion)
+        public Token ProcesarOperadorLogico(string token, int fila, int columna)
         {
             estadoActual = Estado.Q0; // Reiniciar al estado inicial
 
@@ -98,7 +98,7 @@ namespace Analizadores
             // Solo es válido si termina en el estado de aceptación QF
             if (estadoActual == Estado.QF)
             {
-                return new Token("OperadorLogico", token, posicion);
+                return new Token("OperadorLogico", token, fila, columna);
             }
 
             return null!; // No es un operador lógico válido

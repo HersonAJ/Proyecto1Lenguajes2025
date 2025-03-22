@@ -116,14 +116,14 @@ namespace Analizadores
             return estadoActual;
         }
 
-        public Token ProcesarPalabraReservada(string token, int posicion)
+        public Token ProcesarPalabraReservada(string token, int fila, int columna)
         {
             var estadoFinal = AnalizarCaracter(token);
 
             // Si el estado final es QF, es una palabra reservada válida
             if (estadoFinal == Estado.QF)
             {
-                return new Token("PalabraReservada", token, posicion);
+                return new Token("PalabraReservada", token, fila, columna);
             }
 
             // Si no llega a QF, no es válido en este autómata

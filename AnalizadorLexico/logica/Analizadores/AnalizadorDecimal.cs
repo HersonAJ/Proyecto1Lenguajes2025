@@ -104,7 +104,7 @@ namespace Analizadores
             return estadoActual;
         }
 
-        public Token ProcesarDecimal(string token, int posicion)
+        public Token ProcesarDecimal(string token, int fila, int columna)
         {
             estadoActual = Estado.Q0; // Reiniciar siempre al estado inicial
 
@@ -116,7 +116,7 @@ namespace Analizadores
             // Si termina en el estado de aceptación, es válido
             if (estadoActual == Estado.Q5)
             {
-                return new Token("Decimal", token, posicion);
+                return new Token("Decimal", token, fila, columna);
             }
 
             // Si no termina en el estado válido, no es un decimal

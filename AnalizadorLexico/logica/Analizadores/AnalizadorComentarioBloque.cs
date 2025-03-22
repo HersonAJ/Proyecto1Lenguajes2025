@@ -37,7 +37,7 @@ namespace Analizadores
             return estadoActual;
         }
 
-        public Token ProcesarComentarioBloque(string texto, int posicion)
+        public Token ProcesarComentarioBloque(string texto, int fila, int columna)
         {
             estadoActual = Estado.Q0; // Reiniciar al estado inicial
             int longitud = texto.Length;
@@ -52,7 +52,7 @@ namespace Analizadores
                 if (estadoActual == Estado.QF)
                 {
                     // El comentario es válido
-                    return new Token("ComentarioBloque", texto.Substring(0, i + 2), posicion);
+                    return new Token("ComentarioBloque", texto.Substring(0, i + 2), fila, columna);
                 }
             }
 

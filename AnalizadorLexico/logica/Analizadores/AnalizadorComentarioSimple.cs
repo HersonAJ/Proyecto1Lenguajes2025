@@ -45,7 +45,7 @@ namespace Analizadores
             return estadoActual;
         }
 
-        public Token ProcesarComentarioSimple(string token, int posicion)
+        public Token ProcesarComentarioSimple(string token, int fila, int columna)
         {
             estadoActual = Estado.Q0; // Reiniciar al estado inicial
 
@@ -62,7 +62,7 @@ namespace Analizadores
             // Solo válido si termina en el estado final QF
             if (estadoActual == Estado.QF || estadoActual == Estado.Q1)
             {
-                return new Token("ComentarioSimple", token, posicion);
+                return new Token("ComentarioSimple", token, fila, columna);
             }
 
             return null!; // No es un comentario válido

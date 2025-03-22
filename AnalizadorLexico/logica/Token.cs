@@ -4,14 +4,16 @@ namespace Logica
     {
         private string tipo;
         private string valor;
-        private int posicion;
+        private int fila;
+        private int columna;
 
         // Constructor
-        public Token(string tipo, string valor, int posicion)
+        public Token(string tipo, string valor, int fila, int columna)
         {
             this.tipo = tipo;
             this.valor = valor;
-            this.posicion = posicion;
+            this.fila = fila;
+            this.columna = columna;
         }
 
         public string Tipo
@@ -26,16 +28,22 @@ namespace Logica
             set { valor = value; }
         }
 
-        public int Posicion
+        public int Fila
         {
-            get { return posicion; }
-            set { posicion = value; }
+            get { return fila; }
+            set { fila = value; }
+        }
+
+        public int Columna
+        {
+            get { return columna; }
+            set { columna = value; }
         }
 
         // Método para representar como cadena el token
         public override string ToString()
         {
-            return $"Token: {tipo}, Valor: {valor}, Posición: {posicion}";
+            return $"Token: {tipo}, Valor: {valor}, Fila: {fila}, Columna: {columna}";
         }
     }
 }

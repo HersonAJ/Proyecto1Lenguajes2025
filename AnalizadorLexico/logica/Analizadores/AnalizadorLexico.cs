@@ -20,11 +20,11 @@ namespace Analizadores
         }
 
         // Método para analizar un token individual y determinar su tipo
-        public Token AnalizarToken(string token, int posicion)
+        public Token AnalizarToken(string token, int fila, int columna)
         {
             // 1. Validación de decimales
             AnalizadorDecimal analizadorDecimal = new AnalizadorDecimal();
-            Token tokenReconocido = analizadorDecimal.ProcesarDecimal(token, posicion);
+            Token tokenReconocido = analizadorDecimal.ProcesarDecimal(token, fila, columna);
 
             if (tokenReconocido != null)
             {
@@ -33,7 +33,7 @@ namespace Analizadores
 
             // 2. Validación de enteros
             AnalizadorEntero analizadorEntero = new AnalizadorEntero();
-            tokenReconocido = analizadorEntero.ProcesarEntero(token, posicion);
+            tokenReconocido = analizadorEntero.ProcesarEntero(token, fila, columna);
 
             if (tokenReconocido != null)
             {
@@ -42,90 +42,88 @@ namespace Analizadores
 
             // 3. Validación de identificadores
             AnalizadorIdentificador analizadorIdentificador = new AnalizadorIdentificador();
-            tokenReconocido = analizadorIdentificador.ProcesarIdentificador(token, posicion);
+            tokenReconocido = analizadorIdentificador.ProcesarIdentificador(token, fila, columna);
 
             if (tokenReconocido != null)
             {
                 return tokenReconocido; // Retorna el token si es un identificador válido
             }
 
-            //4. validar palabras reservadas
+            // 4. Validar palabras reservadas
             AnalizadorPalabraReservada analizadorPalabraReservada = new AnalizadorPalabraReservada();
-            tokenReconocido = analizadorPalabraReservada.ProcesarPalabraReservada(token, posicion);
+            tokenReconocido = analizadorPalabraReservada.ProcesarPalabraReservada(token, fila, columna);
 
             if (tokenReconocido != null)
             {
                 return tokenReconocido;
             }
 
-            //5. validar literales con comillas simples y dobles
+            // 5. Validar literales con comillas simples y dobles
             AnalizadorLiteral analizadorLiteral = new AnalizadorLiteral();
-            tokenReconocido = analizadorLiteral.ProcesarLiteral(token, posicion);
+            tokenReconocido = analizadorLiteral.ProcesarLiteral(token, fila, columna);
 
             if (tokenReconocido != null)
             {
                 return tokenReconocido;
             }
 
-
-
-            //6. validar signos de puntuacion
+            // 6. Validar signos de puntuación
             AnalizadorSignosPuntuacion analizadorSignosPuntuacion = new AnalizadorSignosPuntuacion();
-            tokenReconocido = analizadorSignosPuntuacion.ProcesarSignoPuntuacion(token, posicion);
+            tokenReconocido = analizadorSignosPuntuacion.ProcesarSignoPuntuacion(token, fila, columna);
 
             if (tokenReconocido != null)
             {
                 return tokenReconocido;
             }
 
-            //7. validar un operador aritmetico 
+            // 7. Validar un operador aritmético
             AnalizadorAritmetico analizadorAritmetico = new AnalizadorAritmetico();
-            tokenReconocido = analizadorAritmetico.ProcesarOperadorAritmetico(token, posicion);
+            tokenReconocido = analizadorAritmetico.ProcesarOperadorAritmetico(token, fila, columna);
 
             if (tokenReconocido != null)
             {
                 return tokenReconocido;
             }
 
-            //8. validar un operador racionar y de asignacion
+            // 8. Validar un operador relacional o de asignación
             AnalizadorRelacionalAsignacion analizadorRelacionalAsignacion = new AnalizadorRelacionalAsignacion();
-            tokenReconocido = analizadorRelacionalAsignacion.ProcesarOperador(token , posicion);
+            tokenReconocido = analizadorRelacionalAsignacion.ProcesarOperador(token, fila, columna);
 
             if (tokenReconocido != null) 
             {
                 return tokenReconocido;
             }
 
-            // 9 valida los operadores logicos
+            // 9. Validar operadores lógicos
             AnalizadorLogico analizadorLogico = new AnalizadorLogico();
-            tokenReconocido = analizadorLogico.ProcesarOperadorLogico(token, posicion);
+            tokenReconocido = analizadorLogico.ProcesarOperadorLogico(token, fila, columna);
 
             if (tokenReconocido != null)
             {
                 return tokenReconocido;
             }
 
-            //10 validar signos de agrupacion 
+            // 10. Validar signos de agrupación
             AnalizadorAgrupacion analizadorAgrupacion = new AnalizadorAgrupacion();
-            tokenReconocido = analizadorAgrupacion.ProcesarSignoAgrupacion(token, posicion);
+            tokenReconocido = analizadorAgrupacion.ProcesarSignoAgrupacion(token, fila, columna);
 
             if (tokenReconocido != null)
             {
                 return tokenReconocido;
             }
 
-            // 11 validar comentario de una sola linea
+            // 11. Validar comentario de una sola línea
             AnalizadorComentarioSimple analizadorComentarioSimple = new AnalizadorComentarioSimple();
-            tokenReconocido = analizadorComentarioSimple.ProcesarComentarioSimple(token, posicion);
+            tokenReconocido = analizadorComentarioSimple.ProcesarComentarioSimple(token, fila, columna);
 
             if (tokenReconocido != null) 
             {
                 return tokenReconocido;
             }
 
-            // 12 validar comentarios en bloque
+            // 12. Validar comentarios en bloque
             AnalizadorComentarioBloque analizadorComentarioBloque = new AnalizadorComentarioBloque();
-            tokenReconocido = analizadorComentarioBloque.ProcesarComentarioBloque(token, posicion);
+            tokenReconocido = analizadorComentarioBloque.ProcesarComentarioBloque(token, fila, columna);
 
             if (tokenReconocido != null)
             {
@@ -133,28 +131,29 @@ namespace Analizadores
             }
 
             // 13. Si el token no coincide con ninguno, registrar el error
-            errores.Add($"Error: Token no reconocido -> '{token}' en posición {posicion}");
+            errores.Add($"Error: Token no reconocido -> '{token}' en fila {fila}, columna {columna}");
             return null!; // Retorna null si no es válido
         }
 
         // Método para analizar una lista completa de tokens
-        public void AnalizarTokens(List<string> lexemas)
+        public void AnalizarTokens(List<string> lexemas, int filaInicial)
         {
             tokens.Clear();
             errores.Clear();
             
-            int posicion = 0;
+            int fila = filaInicial; // Inicio de la fila
+            int columna = 1; // Reiniciar columna
 
             foreach (string lexema in lexemas)
             {
-                Token token = AnalizarToken(lexema, posicion);
+                Token token = AnalizarToken(lexema, fila, columna);
 
                 if (token != null)
                 {
                     tokens.Add(token); // Agregar a la lista de tokens válidos
                 }
 
-                posicion++; // Avanzar la posición (ajustar filas y columnas)
+                columna += lexema.Length + 1; // Avanzar la columna según el tamaño del lexema más un espacio
             }
 
             // Mostrar los tokens válidos
@@ -176,6 +175,15 @@ namespace Analizadores
                     Console.WriteLine(error);
                 }
             }
+        }
+
+        public List<Token> Tokens{
+            get { return tokens;}
+        }
+
+        public List<string> Errores 
+        {
+            get { return errores; }
         }
     }
 }
