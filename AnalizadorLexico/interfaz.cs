@@ -18,7 +18,6 @@ public class Interfaz
     private Analizador analizador;
     private AbrirArchivo abrirArchivo;
     private GuardarArchivo guardarArchivo;
-    //Nuevos elementos para busqueda de patrones
     private Entry patronBusqueda;
     private Button botonBuscar;
     private Label labelCoincidencias;
@@ -28,6 +27,12 @@ public class Interfaz
     {
         // Inicializa GTK
         Application.Init();
+
+        // Inicializa el analizador
+        analizador = new Analizador();
+
+        // Inicializa el botón de análisis
+        analizarButton = new Button("Analizar");
 
         // Cargar archivo CSS
         CssProvider cssProvider = new CssProvider();
@@ -128,32 +133,44 @@ public class Interfaz
         };
 
         // Lógica para el reporte
-
-generateReport.Activated += (o, e) =>
-{
-    Console.WriteLine("Evento generateReport.Activated disparado."); // Log
-    if (analizador != null && analizador.Tokens.Count > 0)
-    {
-        // Crear y mostrar la ventana del reporte
-        ReporteTokens reporte = new ReporteTokens(analizador.Tokens);
-        reporte.MostrarReporte();
-    }
-    else
-    {
-        // Mostrar mensaje si no hay tokens o si hay errores
-        using (MessageDialog reportDialog = new MessageDialog(
-            mainWindow,
-            DialogFlags.Modal,
-            MessageType.Warning,
-            ButtonsType.Ok,
-            "No hay tokens reconocidos o existen errores en el análisis."
-        ))
+        generateReport.Activated += (o, e) =>
         {
-            reportDialog.Run();
-        }
-    }
-};
-      
+            Console.WriteLine("Evento generateReport.Activated disparado."); // Log
+            if (analizador != null && analizador.Tokens.Count > 0 && analizador.Errores.Count == 0)
+            {
+                // Crear y mostrar la ventana del reporte
+                ReporteTokens reporte = new ReporteTokens(analizador.Tokens);
+                reporte.MostrarReporte();
+            }
+            else if (analizador!.Errores.Count > 0)
+            {
+                // Mostrar mensaje si hay errores
+                using (MessageDialog errorDialog = new MessageDialog(
+                    mainWindow,
+                    DialogFlags.Modal,
+                    MessageType.Error,
+                    ButtonsType.Ok,
+                    "El reporte no se puede generar porque existen errores en el análisis. Por favor, corrige los errores e intenta de nuevo."
+                ))
+                {
+                    errorDialog.Run();
+                }
+            }
+            else
+            {
+                // Mostrar mensaje si no hay tokens reconocidos
+                using (MessageDialog noTokensDialog = new MessageDialog(
+                    mainWindow,
+                    DialogFlags.Modal,
+                    MessageType.Warning,
+                    ButtonsType.Ok,
+                    "No hay tokens reconocidos para generar el reporte."
+                ))
+                {
+                    noTokensDialog.Run();
+                }
+            }
+        };
 
         // Organizar los menús principales en el menuBar
         menuBar.Append(fileMenu); // Añadir "Archivo"
@@ -220,19 +237,40 @@ generateReport.Activated += (o, e) =>
         };
 
         // Botón para iniciar el análisis
-        analizarButton = new Button("Analizar");
         analizarButton.Clicked += (o, e) =>
         {
+            if (analizador == null)
+            {
+                Console.WriteLine("Error: El analizador no está inicializado.");
+                return;
+            }
+
             string texto = textEditor.Buffer.Text;
-            string resultado = analizador!.AnalizarTexto(texto);
-            errorArea!.Buffer.Text = resultado;
+            string resultado = analizador.AnalizarTexto(texto);
+
+            // Limpiar el área de errores antes de mostrar nuevos resultados
+            errorArea!.Buffer.Text = "";
+
+            // Mostrar solo errores
+            if (analizador.Errores.Count > 0)
+            {
+                errorArea.Buffer.Text = string.Join("\n", analizador.Errores); // Mostrar errores
+                errorArea.Visible = true; // Hacer visible el área de errores
+                mainWindow.Resize(800, 600); // Expandir la ventana
+            }
+            else
+            {
+                errorArea.Visible = false; // Ocultar si no hay errores
+                mainWindow.Resize(800, 400); // Contraer la ventana
+            }
         };
 
         // Área de errores
         errorArea = new TextView();
         errorArea.StyleContext.AddClass("custom-error");
-        errorArea.Buffer.Text = "Área de resultados...";
+        errorArea.Buffer.Text = ""; // Inicializar sin texto
         errorArea.Editable = false;
+        errorArea.Visible = false; // Ocultar por defecto
         ScrolledWindow errorScroll = new ScrolledWindow();
         errorScroll.Add(errorArea);
 
@@ -250,7 +288,7 @@ generateReport.Activated += (o, e) =>
             labelCoincidencias.Text = $"Coincidencias: {coincidencias}";
         };
 
-        // Contenedor horizontal para la búsqueda, botón analizar y posicion
+        // Contenedor horizontal para la búsqueda, botón analizar y posición
         Box botonBusquedaPosicionContainer = new Box(Orientation.Horizontal, 5);
         botonBusquedaPosicionContainer.PackStart(analizarButton, false, false, 0);
         botonBusquedaPosicionContainer.PackStart(patronBusqueda, true, true, 0);
@@ -261,16 +299,18 @@ generateReport.Activated += (o, e) =>
         // Inicializar la instancia de BusquedaPatrones
         busquedaPatrones = new BusquedaPatrones(textEditor);
 
-        mainLayout.PackStart(editorContainer, true, true, 0);
-        mainLayout.PackStart(botonBusquedaPosicionContainer, false, false, 0); // Añadir el contenedor de búsqueda, botón analizar y posicion
-        mainLayout.PackStart(errorScroll, true, true, 0);
+        // Distribuir el espacio entre textEditor y errorArea (3/4 para textEditor, 1/4 para errorArea)
+        Box editorErrorContainer = new Box(Orientation.Vertical, 0);
+        editorErrorContainer.PackStart(editorContainer, true, true, 0); // textEditor ocupa 3/4
+        editorErrorContainer.PackStart(errorScroll, false, false, 0); // errorArea ocupa 1/4
+
+        mainLayout.PackStart(editorErrorContainer, true, true, 0);
+        mainLayout.PackStart(botonBusquedaPosicionContainer, false, false, 0); // Añadir el contenedor de búsqueda, botón analizar y posición
 
         mainWindow.Add(mainLayout);
         mainWindow.ShowAll();
 
         UpdateLineNumbers();
-
-        analizador = new Analizador();
     }
 
     private void UpdateLineNumbers()

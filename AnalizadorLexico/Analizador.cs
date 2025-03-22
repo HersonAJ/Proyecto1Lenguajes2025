@@ -17,9 +17,19 @@ public class Analizador
         get { return analizadorLexico.Tokens;}
     }
 
+    public List<string> Errores
+    {
+        get { return analizadorLexico.Errores;}
+    }
+
     // Método para analizar el texto completo
     public string AnalizarTexto(string texto)
     {
+
+        //limpieza por instancia 
+        analizadorLexico.Tokens.Clear();
+        analizadorLexico.Errores.Clear();
+
         // Divide el texto en líneas para análisis por fila
         string[] lineas = texto.Split(new[] { '\n' }, StringSplitOptions.None);
         int fila = 1; // Comienza en la fila 1
