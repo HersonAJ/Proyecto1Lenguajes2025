@@ -52,6 +52,12 @@ public class Interfaz
         MenuItem editMenu = new MenuItem("Editar");
         MenuItem aboutMenuItem = new MenuItem("Acerca de");
 
+        MenuItem reportMenu = new MenuItem("Reportes");
+        Menu reportSubMenu = new Menu();
+        reportMenu.Submenu = reportSubMenu;
+        MenuItem generateReport = new MenuItem("Generar Reporte");
+        reportSubMenu.Append(generateReport);
+
         // Submenús
         Menu fileSubMenu = new Menu();
         fileMenu.Submenu = fileSubMenu;
@@ -121,10 +127,39 @@ public class Interfaz
             }
         };
 
+        // Lógica para el reporte
+
+generateReport.Activated += (o, e) =>
+{
+    Console.WriteLine("Evento generateReport.Activated disparado."); // Log
+    if (analizador != null && analizador.Tokens.Count > 0)
+    {
+        // Crear y mostrar la ventana del reporte
+        ReporteTokens reporte = new ReporteTokens(analizador.Tokens);
+        reporte.MostrarReporte();
+    }
+    else
+    {
+        // Mostrar mensaje si no hay tokens o si hay errores
+        using (MessageDialog reportDialog = new MessageDialog(
+            mainWindow,
+            DialogFlags.Modal,
+            MessageType.Warning,
+            ButtonsType.Ok,
+            "No hay tokens reconocidos o existen errores en el análisis."
+        ))
+        {
+            reportDialog.Run();
+        }
+    }
+};
+      
+
         // Organizar los menús principales en el menuBar
         menuBar.Append(fileMenu); // Añadir "Archivo"
         menuBar.Append(editMenu); // Añadir "Editar"
         menuBar.Append(aboutMenuItem); // Añadir "Acerca de"
+        menuBar.Append(reportMenu);
 
         // Añadir el menuBar al layout principal
         mainLayout.PackStart(menuBar, false, false, 0);

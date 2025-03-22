@@ -12,6 +12,11 @@ public class Analizador
         analizadorLexico = new AnalizadorLexico();
     }
 
+    public List<Token> Tokens
+    {
+        get { return analizadorLexico.Tokens;}
+    }
+
     // Método para analizar el texto completo
     public string AnalizarTexto(string texto)
     {

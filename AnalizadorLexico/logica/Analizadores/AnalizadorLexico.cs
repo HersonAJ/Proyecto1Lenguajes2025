@@ -28,6 +28,7 @@ namespace Analizadores
 
             if (tokenReconocido != null)
             {
+                tokens.Add(tokenReconocido); // Agregar el token a la lista
                 return tokenReconocido; // Retorna el token si es un número decimal válido
             }
 
@@ -37,6 +38,7 @@ namespace Analizadores
 
             if (tokenReconocido != null)
             {
+                tokens.Add(tokenReconocido); // Agregar el token a la lista
                 return tokenReconocido; // Retorna el token si es un entero válido
             }
 
@@ -46,6 +48,7 @@ namespace Analizadores
 
             if (tokenReconocido != null)
             {
+                tokens.Add(tokenReconocido); // Agregar el token a la lista
                 return tokenReconocido; // Retorna el token si es un identificador válido
             }
 
@@ -55,6 +58,7 @@ namespace Analizadores
 
             if (tokenReconocido != null)
             {
+                tokens.Add(tokenReconocido); // Agregar el token a la lista
                 return tokenReconocido;
             }
 
@@ -64,6 +68,7 @@ namespace Analizadores
 
             if (tokenReconocido != null)
             {
+                tokens.Add(tokenReconocido); // Agregar el token a la lista
                 return tokenReconocido;
             }
 
@@ -73,6 +78,7 @@ namespace Analizadores
 
             if (tokenReconocido != null)
             {
+                tokens.Add(tokenReconocido); // Agregar el token a la lista
                 return tokenReconocido;
             }
 
@@ -82,6 +88,7 @@ namespace Analizadores
 
             if (tokenReconocido != null)
             {
+                tokens.Add(tokenReconocido); // Agregar el token a la lista
                 return tokenReconocido;
             }
 
@@ -91,6 +98,7 @@ namespace Analizadores
 
             if (tokenReconocido != null) 
             {
+                tokens.Add(tokenReconocido); // Agregar el token a la lista
                 return tokenReconocido;
             }
 
@@ -100,6 +108,7 @@ namespace Analizadores
 
             if (tokenReconocido != null)
             {
+                tokens.Add(tokenReconocido); // Agregar el token a la lista
                 return tokenReconocido;
             }
 
@@ -109,6 +118,7 @@ namespace Analizadores
 
             if (tokenReconocido != null)
             {
+                tokens.Add(tokenReconocido); // Agregar el token a la lista
                 return tokenReconocido;
             }
 
@@ -118,6 +128,7 @@ namespace Analizadores
 
             if (tokenReconocido != null) 
             {
+                tokens.Add(tokenReconocido); // Agregar el token a la lista
                 return tokenReconocido;
             }
 
@@ -127,6 +138,7 @@ namespace Analizadores
 
             if (tokenReconocido != null)
             {
+                tokens.Add(tokenReconocido); // Agregar el token a la lista
                 return tokenReconocido;
             }
 
