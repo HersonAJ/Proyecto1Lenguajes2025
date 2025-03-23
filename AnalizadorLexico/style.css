@@ -26,3 +26,13 @@
     border: 1px solid #c62828;
     border-radius: 5px;
 }
+.line-number-container {
+    border-right: 1px solid #333333; /* Borde más visible */
+    background-color: #F9F9F9; /* Fondo tenue */
+}
+
+.line-number-area {
+    background-color: #F9F9F9;
+    color: #333333; /* Color del texto */
+    padding: 2px; /* Ajuste de relleno para mejor visualización */
+}

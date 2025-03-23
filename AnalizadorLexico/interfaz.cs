@@ -215,14 +215,32 @@ public class Interfaz
         // Contenedor horizontal para la numeración de líneas y el editor
         Box editorContainer = new Box(Orientation.Horizontal, 0);
 
+        // Contenedor vertical para envolver el área de números de línea
+        Box lineNumberContainer = new Box(Orientation.Vertical, 0);
+        lineNumberContainer.StyleContext.AddClass("line-number-container");
+
         // Área para los números de línea
         lineNumberArea = new TextView();
         lineNumberArea.Editable = false;
         lineNumberArea.WrapMode = WrapMode.None;
         lineNumberArea.StyleContext.AddClass("line-number-area");
-        ScrolledWindow lineNumberScroll = new ScrolledWindow();
-        lineNumberScroll.Add(lineNumberArea);
+        lineNumberContainer.PackStart(lineNumberArea, true, true, 0); // Agregar al contenedor
 
+        // ScrolledWindow para el contenedor de números de línea
+        ScrolledWindow lineNumberScroll = new ScrolledWindow();
+        lineNumberScroll.Add(lineNumberContainer);
+
+        // Sincronizar el desplazamiento del área de numeración de líneas con el editor de texto
+        Adjustment textScrollAdjustment = editorScroll.Vadjustment;
+        Adjustment lineNumberScrollAdjustment = lineNumberScroll.Vadjustment;
+
+        textScrollAdjustment.ValueChanged += (o, e) =>
+        {
+            // Actualiza la posición de scroll de los números de línea
+            lineNumberScrollAdjustment.Value = textScrollAdjustment.Value;
+        };
+
+        // Agregar lineNumberScroll y editorScroll al editorContainer
         editorContainer.PackStart(lineNumberScroll, false, false, 0);
         editorContainer.PackStart(editorScroll, true, true, 0);
 
