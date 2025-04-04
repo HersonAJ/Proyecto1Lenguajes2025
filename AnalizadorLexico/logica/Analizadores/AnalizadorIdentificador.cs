@@ -22,16 +22,20 @@ namespace Analizadores
                         {
                             estadoActual = Estado.Q1; // Transición al estado Q1 al encontrar el carácter '$'
                         }
+                        else
+                        {
+                            estadoActual = Estado.Q0; // Estado inválido si no comienza con '$'
+                        }
                         break;
 
                     case Estado.Q1:
-                        if (char.IsLetter(caracter))
+                        if (char.IsLetter(caracter) || char.IsDigit(caracter) || caracter == '_' || caracter == '-')
                         {
-                            estadoActual = Estado.Q2; // Transición al estado Q2 al encontrar una letra
+                            estadoActual = Estado.Q2; // Transición al estado Q2 al encontrar una letra, dígito, '_' o '-'
                         }
                         else
                         {
-                            estadoActual = Estado.Q0; // Volver al estado inicial si el siguiente carácter no es válido
+                            estadoActual = Estado.Q0; // Estado inválido
                         }
                         break;
 
@@ -42,7 +46,7 @@ namespace Analizadores
                         }
                         else
                         {
-                            estadoActual = Estado.Q0; // Volver al estado inicial si el carácter no es válido
+                            estadoActual = Estado.Q0; // Estado inválido si el carácter no es válido
                         }
                         break;
 
@@ -52,7 +56,7 @@ namespace Analizadores
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al analizar el caracter: {ex.Message}");
+                Console.WriteLine($"Error al analizar el carácter: {ex.Message}");
             }
 
             return estadoActual;
@@ -67,12 +71,18 @@ namespace Analizadores
                 foreach (char caracter in token)
                 {
                     AnalizarCaracter(caracter);
+
+                    // Si en algún momento el estado vuelve a Q0, el identificador no es válido
+                    if (estadoActual == Estado.Q0)
+                    {
+                        return null!;
+                    }
                 }
 
-                // Si el token es válido, retornar un objeto Token
-                if (estadoActual == Estado.Q2 || estadoActual == Estado.QF)
+                // Si el estado final es Q2, el identificador es válido
+                if (estadoActual == Estado.Q2)
                 {
-                    estadoActual = Estado.QF; // Asegurar que se alcance QF
+                    estadoActual = Estado.QF; // Transición al estado final
                     return new Token("Identificador", token, fila, columna);
                 }
             }

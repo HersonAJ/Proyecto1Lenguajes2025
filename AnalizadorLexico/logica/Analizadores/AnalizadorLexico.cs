@@ -24,14 +24,14 @@ namespace Analizadores
         {
             try
             {
-                // 1. Validación de decimales
-                AnalizadorDecimal analizadorDecimal = new AnalizadorDecimal();
-                Token tokenReconocido = analizadorDecimal.ProcesarDecimal(token, fila, columna);
+                //1. validacion de identificadores
+                AnalizadorIdentificador analizadorIdentificador = new AnalizadorIdentificador();
+                Token tokenReconocido = analizadorIdentificador.ProcesarIdentificador(token, fila, columna);
 
                 if (tokenReconocido != null)
                 {
                     tokens.Add(tokenReconocido); // Agregar el token a la lista
-                    return tokenReconocido; // Retorna el token si es un número decimal válido
+                    return tokenReconocido; // Retorna el token si es un identificador válido
                 }
 
                 // 2. Validación de enteros
@@ -44,14 +44,14 @@ namespace Analizadores
                     return tokenReconocido; // Retorna el token si es un entero válido
                 }
 
-                // 3. Validación de identificadores
-                AnalizadorIdentificador analizadorIdentificador = new AnalizadorIdentificador();
-                tokenReconocido = analizadorIdentificador.ProcesarIdentificador(token, fila, columna);
+                // 3. Validación de decimales
+                AnalizadorDecimal analizadorDecimal = new AnalizadorDecimal();
+                tokenReconocido = analizadorDecimal.ProcesarDecimal(token, fila, columna);
 
                 if (tokenReconocido != null)
                 {
                     tokens.Add(tokenReconocido); // Agregar el token a la lista
-                    return tokenReconocido; // Retorna el token si es un identificador válido
+                    return tokenReconocido; // Retorna el token si es un número decimal válido
                 }
 
                 // 4. Validar palabras reservadas
