@@ -321,6 +321,7 @@ public class Interfaz
         Box editorErrorContainer = new Box(Orientation.Vertical, 0);
         editorErrorContainer.PackStart(editorContainer, true, true, 0); // textEditor ocupa 3/4
         editorErrorContainer.PackStart(errorScroll, false, false, 0); // errorArea ocupa 1/4
+        errorScroll.SetSizeRequest(-1, 100); // Alto fijo de 150 píxeles
 
         mainLayout.PackStart(editorErrorContainer, true, true, 0);
         mainLayout.PackStart(botonBusquedaPosicionContainer, false, false, 0); // Añadir el contenedor de búsqueda, botón analizar y posición

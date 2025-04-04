@@ -13,24 +13,32 @@ namespace Analizadores
 
         public Estado AnalizarCaracter(char caracter)
         {
-            switch (estadoActual)
+            try
             {
-                case Estado.Q0:
-                    if (caracter == '(' || caracter == ')' || 
-                        caracter == '[' || caracter == ']' || 
-                        caracter == '{' || caracter == '}')
-                    {
-                        estadoActual = Estado.QF; // Transición al estado de aceptación
-                    }
-                    else
-                    {
-                        estadoActual = Estado.Q0; // Carácter no válido
-                    }
-                    break;
+                switch (estadoActual)
+                {
+                    case Estado.Q0:
+                        if (caracter == '(' || caracter == ')' || 
+                            caracter == '[' || caracter == ']' || 
+                            caracter == '{' || caracter == '}')
+                        {
+                            estadoActual = Estado.QF; // Transición al estado de aceptación
+                        }
+                        else
+                        {
+                            estadoActual = Estado.Q0; // Carácter no válido
+                        }
+                        break;
 
-                case Estado.QF:
-                    // No hay más transiciones desde el estado final
-                    break;
+                    case Estado.QF:
+                        // No hay más transiciones desde el estado final
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                
+                Console.WriteLine($"Error al analizar el carácter: {ex.Message}");
             }
 
             return estadoActual;
@@ -38,17 +46,25 @@ namespace Analizadores
 
         public Token ProcesarSignoAgrupacion(string token, int fila, int columna)
         {
-            estadoActual = Estado.Q0; // Reiniciar al estado inicial
-
-            if (token.Length == 1) // Los signos de agrupación son de un solo carácter
+            try
             {
-                char caracter = token[0];
-                AnalizarCaracter(caracter);
+                estadoActual = Estado.Q0; // Reiniciar al estado inicial
 
-                if (estadoActual == Estado.QF)
+                if (token.Length == 1) // Los signos de agrupación son de un solo carácter
                 {
-                    return new Token("SignoAgrupacion", token, fila, columna);
+                    char caracter = token[0];
+                    AnalizarCaracter(caracter);
+
+                    if (estadoActual == Estado.QF)
+                    {
+                        return new Token("SignoAgrupacion", token, fila, columna);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                
+                Console.WriteLine($"Error al procesar el signo de agrupación: {ex.Message}");
             }
 
             // Si no llega al estado de aceptación, no es un signo de agrupación válido

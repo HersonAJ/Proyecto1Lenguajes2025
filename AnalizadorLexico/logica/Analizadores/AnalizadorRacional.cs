@@ -13,43 +13,50 @@ namespace Analizadores
 
         public Estado AnalizarCaracter(char caracter)
         {
-            switch (estadoActual)
+            try
             {
-                case Estado.Q0:
-                    if (caracter == '<' || caracter == '>')
-                    {
-                        estadoActual = Estado.Q1; // Puede ser un operador relacional simple o compuesto
-                    }
-                    else if (caracter == '=')
-                    {
-                        estadoActual = Estado.QF_A; // Operador de asignación
-                    }
-                    else
-                    {
-                        estadoActual = Estado.Q0; // Operador inválido
-                    }
-                    break;
+                switch (estadoActual)
+                {
+                    case Estado.Q0:
+                        if (caracter == '<' || caracter == '>')
+                        {
+                            estadoActual = Estado.Q1; // Puede ser un operador relacional simple o compuesto
+                        }
+                        else if (caracter == '=')
+                        {
+                            estadoActual = Estado.QF_A; // Operador de asignación
+                        }
+                        else
+                        {
+                            estadoActual = Estado.Q0; // Operador inválido
+                        }
+                        break;
 
-                case Estado.Q1:
-                    if (caracter == '=') // Combinaciones válidas: <= o >=
-                    {
-                        estadoActual = Estado.QF_R;
-                    }
-                    else if (caracter == '<' || caracter == '>') // Detecta operadores inválidos << o >>
-                    {
-                        estadoActual = Estado.Q0; // Operador inválido
-                    }
-                    else
-                    {
-                        estadoActual = Estado.QF_R; // < o > son operadores relacionales válidos
-                    }
-                    break;
+                    case Estado.Q1:
+                        if (caracter == '=') // Combinaciones válidas: <= o >=
+                        {
+                            estadoActual = Estado.QF_R;
+                        }
+                        else if (caracter == '<' || caracter == '>') // Detecta operadores inválidos << o >>
+                        {
+                            estadoActual = Estado.Q0; // Operador inválido
+                        }
+                        else
+                        {
+                            estadoActual = Estado.QF_R; // < o > son operadores relacionales válidos
+                        }
+                        break;
 
-                case Estado.QF_R:
-                case Estado.QF_A:
-                    // Si se intenta procesar más caracteres después del estado final, es inválido
-                    estadoActual = Estado.Q0;
-                    break;
+                    case Estado.QF_R:
+                    case Estado.QF_A:
+                        // Si se intenta procesar más caracteres después del estado final, es inválido
+                        estadoActual = Estado.Q0;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al analizar el caracter: {ex.Message}");
             }
 
             return estadoActual;
@@ -57,31 +64,38 @@ namespace Analizadores
 
         public Token ProcesarOperador(string token, int fila, int columna)
         {
-            estadoActual = Estado.Q0; // Reiniciar al estado inicial
-            int longitud = token.Length;
-
-            for (int i = 0; i < longitud; i++)
+            try
             {
-                AnalizarCaracter(token[i]);
+                estadoActual = Estado.Q0; // Reiniciar al estado inicial
+                int longitud = token.Length;
 
-                if (estadoActual == Estado.Q0 && i < longitud - 1) // Vuelve al estado inicial antes de terminar
+                for (int i = 0; i < longitud; i++)
                 {
-                    return null!; // No es válido
+                    AnalizarCaracter(token[i]);
+
+                    if (estadoActual == Estado.Q0 && i < longitud - 1) // Vuelve al estado inicial antes de terminar
+                    {
+                        return null!; // No es válido
+                    }
+                }
+
+                // Clasificar el token según el estado final
+                if (estadoActual == Estado.QF_R && longitud <= 2)
+                {
+                    return new Token("OperadorRelacional", token, fila, columna);
+                }
+                else if (estadoActual == Estado.QF_A && longitud == 1)
+                {
+                    return new Token("OperadorAsignacion", token, fila, columna);
+                }
+                else if (estadoActual == Estado.Q1) // Asegurar que < y > sean aceptados
+                {
+                    return new Token("OperadorRelacional", token, fila, columna);
                 }
             }
-
-            // Clasificar el token según el estado final
-            if (estadoActual == Estado.QF_R && longitud <= 2)
+            catch (Exception ex)
             {
-                return new Token("OperadorRelacional", token, fila, columna);
-            }
-            else if (estadoActual == Estado.QF_A && longitud == 1)
-            {
-                return new Token("OperadorAsignacion", token, fila, columna);
-            }
-            else if (estadoActual == Estado.Q1) // Asegurar que < y > sean aceptados
-            {
-                return new Token("OperadorRelacional", token, fila, columna);
+                Console.WriteLine($"Error al procesar el operador racional: {ex.Message}");
             }
 
             return null!; // No es un operador válido

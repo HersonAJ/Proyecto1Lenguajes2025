@@ -14,88 +14,105 @@ namespace Funciones
 
         public HistorialCambios(TextView textEditor)
         {
+            // Asignar los campos no anulables antes del bloque try.
             this.textEditor = textEditor;
-
-            // Inicializar las pilas y el último estado
             pilaDeshacer = new Stack<string>();
             pilaRehacer = new Stack<string>();
-            ultimoEstado = textEditor.Buffer.Text; // Estado inicial
+            ultimoEstado = textEditor.Buffer.Text;  // Estado inicial
             esCambioProgramatico = false;
 
-            // Agregar el estado inicial del texto
-            pilaDeshacer.Push(ultimoEstado);
-
-            // Escuchar cambios en el texto para actualizar el historial
-            textEditor.Buffer.Changed += (sender, args) =>
+            try
             {
-                if (esCambioProgramatico)
+                // Agregar el estado inicial del texto
+                pilaDeshacer.Push(ultimoEstado);
+
+                // Escuchar cambios en el texto para actualizar el historial
+                textEditor.Buffer.Changed += (sender, args) =>
                 {
-                
-                    return;
-                }
+                    try
+                    {
+                        if (esCambioProgramatico) return;
 
-                string estadoActual = textEditor.Buffer.Text;
+                        string estadoActual = textEditor.Buffer.Text;
 
-                // Registrar cambios solo si el texto es diferente
-                if (estadoActual != ultimoEstado)
-                {
-                    pilaDeshacer.Push(estadoActual);
-                    ultimoEstado = estadoActual;
+                        // Registrar cambios solo si el texto es diferente
+                        if (estadoActual != ultimoEstado)
+                        {
+                            pilaDeshacer.Push(estadoActual);
+                            ultimoEstado = estadoActual;
 
-                    // Limpiar la pila de rehacer porque se pierde el contexto
-                    pilaRehacer.Clear();
-                }
-            };
+                            // Limpiar la pila de rehacer porque se pierde el contexto
+                            pilaRehacer.Clear();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[ERROR] Ocurrió un error al registrar cambios: {ex.Message}");
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Ocurrió un error al inicializar HistorialCambios: {ex.Message}");
+            }
         }
 
-        ///<summary>
-        /// Método para deshacer el último cambio en el editor de texto.
-        ///</summary>
         public void Deshacer()
         {
-            if (pilaDeshacer.Count > 1)
+            try
             {
-                // Guardar el estado actual en la pila de rehacer
-                string estadoActual = pilaDeshacer.Pop();
-                pilaRehacer.Push(estadoActual);
+                if (pilaDeshacer.Count > 1)
+                {
+                    // Guardar el estado actual en la pila de rehacer
+                    string estadoActual = pilaDeshacer.Pop();
+                    pilaRehacer.Push(estadoActual);
 
-                // Restaurar el estado anterior
-                string estadoAnterior = pilaDeshacer.Peek();
-                Console.WriteLine($"[HistorialCambios] Deshacer. Restaurando estado: {estadoAnterior}");
-                esCambioProgramatico = true; // Marcar como cambio programático
-                textEditor.Buffer.Text = estadoAnterior;
-                esCambioProgramatico = false; // Restablecer bandera
-                ultimoEstado = estadoAnterior; // Actualizar último estado
+                    // Restaurar el estado anterior
+                    string estadoAnterior = pilaDeshacer.Peek();
+                    Console.WriteLine($"[HistorialCambios] Deshacer. Restaurando estado: {estadoAnterior}");
+                    esCambioProgramatico = true; // Marcar como cambio programático
+                    textEditor.Buffer.Text = estadoAnterior;
+                    esCambioProgramatico = false; // Restablecer bandera
+                    ultimoEstado = estadoAnterior; // Actualizar último estado
+                }
+                else
+                {
+                    Console.WriteLine("[HistorialCambios] No hay más cambios para deshacer.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("[HistorialCambios] No hay más cambios para deshacer.");
+                Console.WriteLine($"[ERROR] Ocurrió un error al deshacer: {ex.Message}");
             }
         }
 
-        ///<summary>
-        /// Método para rehacer el último cambio deshecho en el editor de texto.
-        ///</summary>
         public void Rehacer()
         {
-            if (pilaRehacer.Count > 0)
+            try
             {
-                // Recuperar el estado deshecho más reciente
-                string estadoRehecho = pilaRehacer.Pop();
+                if (pilaRehacer.Count > 0)
+                {
+                    // Recuperar el estado deshecho más reciente
+                    string estadoRehecho = pilaRehacer.Pop();
 
-                // Agregar el estado rehecho a la pila de deshacer
-                pilaDeshacer.Push(estadoRehecho);
+                    // Agregar el estado rehecho a la pila de deshacer
+                    pilaDeshacer.Push(estadoRehecho);
 
-                // Restaurar el estado rehecho
-                Console.WriteLine($"[HistorialCambios] Rehacer. Restaurando estado: {estadoRehecho}");
-                esCambioProgramatico = true; // Marcar como cambio programático
-                textEditor.Buffer.Text = estadoRehecho;
-                esCambioProgramatico = false; // Restablecer bandera
-                ultimoEstado = estadoRehecho; // Actualizar último estado
+                    // Restaurar el estado rehecho
+                    Console.WriteLine($"[HistorialCambios] Rehacer. Restaurando estado: {estadoRehecho}");
+                    esCambioProgramatico = true; // Marcar como cambio programático
+                    textEditor.Buffer.Text = estadoRehecho;
+                    esCambioProgramatico = false; // Restablecer bandera
+                    ultimoEstado = estadoRehecho; // Actualizar último estado
+                }
+                else
+                {
+                    Console.WriteLine("[HistorialCambios] No hay más cambios para rehacer.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("[HistorialCambios] No hay más cambios para rehacer.");
+                Console.WriteLine($"[ERROR] Ocurrió un error al rehacer: {ex.Message}");
             }
         }
     }

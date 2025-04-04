@@ -13,33 +13,40 @@ namespace Analizadores
 
         public Estado AnalizarCaracter(char caracter)
         {
-            switch (estadoActual)
+            try
             {
-                case Estado.Q0:
-                    if (caracter == '#')
-                    {
-                        estadoActual = Estado.Q1; // Inicio del comentario
-                    }
-                    else
-                    {
-                        estadoActual = Estado.Q0; // No válido
-                    }
-                    break;
+                switch (estadoActual)
+                {
+                    case Estado.Q0:
+                        if (caracter == '#')
+                        {
+                            estadoActual = Estado.Q1; // Inicio del comentario
+                        }
+                        else
+                        {
+                            estadoActual = Estado.Q0; // No válido
+                        }
+                        break;
 
-                case Estado.Q1:
-                    if (caracter == '\n') // Fin de línea
-                    {
-                        estadoActual = Estado.QF; // Comentario válido completo
-                    }
-                    else
-                    {
-                        estadoActual = Estado.Q1; // Se mantiene en el comentario
-                    }
-                    break;
+                    case Estado.Q1:
+                        if (caracter == '\n') // Fin de línea
+                        {
+                            estadoActual = Estado.QF; // Comentario válido completo
+                        }
+                        else
+                        {
+                            estadoActual = Estado.Q1; // Se mantiene en el comentario
+                        }
+                        break;
 
-                case Estado.QF:
-                    // Ya no hay transiciones desde el estado final
-                    break;
+                    case Estado.QF:
+                        // Ya no hay transiciones desde el estado final
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al analizar el caracter: {ex.Message}");
             }
 
             return estadoActual;
@@ -47,22 +54,29 @@ namespace Analizadores
 
         public Token ProcesarComentarioSimple(string token, int fila, int columna)
         {
-            estadoActual = Estado.Q0; // Reiniciar al estado inicial
-
-            foreach (char caracter in token)
+            try
             {
-                AnalizarCaracter(caracter);
+                estadoActual = Estado.Q0; // Reiniciar al estado inicial
 
-                if (estadoActual == Estado.Q0 && caracter != '#') // Si regresa a Q0, no es válido
+                foreach (char caracter in token)
                 {
-                    return null!; // No es un comentario válido
+                    AnalizarCaracter(caracter);
+
+                    if (estadoActual == Estado.Q0 && caracter != '#') // Si regresa a Q0, no es válido
+                    {
+                        return null!; // No es un comentario válido
+                    }
+                }
+
+                // Solo válido si termina en el estado final QF
+                if (estadoActual == Estado.QF || estadoActual == Estado.Q1)
+                {
+                    return new Token("ComentarioSimple", token, fila, columna);
                 }
             }
-
-            // Solo válido si termina en el estado final QF
-            if (estadoActual == Estado.QF || estadoActual == Estado.Q1)
+            catch (Exception ex)
             {
-                return new Token("ComentarioSimple", token, fila, columna);
+                Console.WriteLine($"Error al procesar el comentario simple: {ex.Message}");
             }
 
             return null!; // No es un comentario válido
