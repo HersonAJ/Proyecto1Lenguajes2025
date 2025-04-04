@@ -60,8 +60,10 @@ namespace Analizadores
                     }
                     break;
 
-                default:
-                    throw new Exception("Estado no definido en el autómata");
+default:
+    estadoActual = Estado.Q0; // Retornar al estado inicial para cualquier error
+    break;
+
             }
 
             return estadoActual;

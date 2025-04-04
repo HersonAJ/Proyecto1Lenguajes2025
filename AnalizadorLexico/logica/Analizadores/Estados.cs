@@ -13,6 +13,17 @@ namespace Analizadores
         Q7,
         Q8,
         Q9,
+        Q10,
+        Q11,
+        Q12,
+        Q13,
+        Q14,
+        Q15,
+        Q16,
+        Q17,
+        Q18,
+        Q19,
+        Q20,
         QF, //estado final o de aceptacion 
 
         QF_A, //estado de aceptacion para asignacion
