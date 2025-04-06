@@ -34,17 +34,7 @@ namespace Analizadores
                     return tokenReconocido; // Retorna el token si es un identificador válido
                 }
 
-                // 2. Validación de enteros
-                AnalizadorEntero analizadorEntero = new AnalizadorEntero();
-                tokenReconocido = analizadorEntero.ProcesarEntero(token, fila, columna);
-
-                if (tokenReconocido != null)
-                {
-                    tokens.Add(tokenReconocido); // Agregar el token a la lista
-                    return tokenReconocido; // Retorna el token si es un entero válido
-                }
-
-                // 3. Validación de decimales
+                // 2. Validación de decimales
                 AnalizadorDecimal analizadorDecimal = new AnalizadorDecimal();
                 tokenReconocido = analizadorDecimal.ProcesarDecimal(token, fila, columna);
 
@@ -52,6 +42,16 @@ namespace Analizadores
                 {
                     tokens.Add(tokenReconocido); // Agregar el token a la lista
                     return tokenReconocido; // Retorna el token si es un número decimal válido
+                }                
+
+                // 3. Validación de enteros
+                AnalizadorEntero analizadorEntero = new AnalizadorEntero();
+                tokenReconocido = analizadorEntero.ProcesarEntero(token, fila, columna);
+
+                if (tokenReconocido != null)
+                {
+                    tokens.Add(tokenReconocido); // Agregar el token a la lista
+                    return tokenReconocido; // Retorna el token si es un entero válido
                 }
 
                 // 4. Validar palabras reservadas
