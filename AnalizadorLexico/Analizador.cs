@@ -26,58 +26,67 @@ public class Analizador
     {
         try
         {
+            // Reiniciar tokens y errores
             analizadorLexico.Tokens.Clear();
             analizadorLexico.Errores.Clear();
 
+            // Separar el texto en líneas
             string[] lineas = texto.Split(new[] { '\n' }, StringSplitOptions.None);
             int fila = 1; // Comienza en la fila 1
 
             List<string> resultado = new List<string>();
             resultado.Add("Tokens reconocidos:");
 
+            // Variables para manejo de comentarios en bloque
             bool dentroComentarioBloque = false;
-            string bufferComentarioBloque = string.Empty;
+            string bufferComentarioBloque = string.Empty; //agrupara caracter por caracter
             int filaInicioComentarioBloque = 0;
             int columnaInicioComentarioBloque = 0;
 
+            // Procesar cada línea
             foreach (string linea in lineas)
             {
                 int columna = 1;
-                string buffer = string.Empty;
+                string buffer = string.Empty;  // Acumula caracteres para formar lexemas simples
                 bool dentroLiteral = false;
                 char delimitadorLiteral = '\0';
 
-                for (int i = 0; i < linea.Length; i++)
+                for (int i = 0; i < linea.Length; i++) //ciclo for para recorrer toda la entrada 
                 {
-                    char actual = linea[i];
+                    char actual = linea[i]; //lectura de caracter por caracter 
 
                     if (dentroComentarioBloque)
                     {
+                        // Acumular contenido del comentario en bloque
                         bufferComentarioBloque += actual;
                         if (i < linea.Length - 1 && actual == '*' && linea[i + 1] == '/')
                         {
+                            // Fin del comentario en bloque: generar lexema completo
                             bufferComentarioBloque += '/';
-                            Token tokenBloque = new Token("ComentarioBloque", bufferComentarioBloque, filaInicioComentarioBloque, columnaInicioComentarioBloque);
-                            resultado.Add(tokenBloque.ToString());
-                            analizadorLexico.Tokens.Add(tokenBloque);
+                            Token tokenBloque = analizadorLexico.AnalizarToken(bufferComentarioBloque, filaInicioComentarioBloque, columnaInicioComentarioBloque);
+                            if (tokenBloque != null)
+                            {
+                                resultado.Add(tokenBloque.ToString());
+                            }
+                            // Reiniciar variables del comentario en bloque
                             dentroComentarioBloque = false;
                             bufferComentarioBloque = string.Empty;
-                            columna += 2;
+                            columna += 2; // Avanzar por los dos caracteres "*/"
                             i++;
                         }
                     }
                     else if (dentroLiteral)
                     {
+                        // Acumular literal
                         buffer += actual;
-
                         if (actual == delimitadorLiteral)
                         {
+                            // Fin del literal: se genera el lexema completo y se delega su análisis
                             Token tokenReconocido = analizadorLexico.AnalizarToken(buffer, fila, columna);
                             if (tokenReconocido != null)
                             {
                                 resultado.Add(tokenReconocido.ToString());
                             }
-
                             columna += buffer.Length;
                             buffer = string.Empty;
                             dentroLiteral = false;
@@ -86,6 +95,7 @@ public class Analizador
                     }
                     else if (i < linea.Length - 1 && actual == '/' && linea[i + 1] == '*')
                     {
+                        // Inicio de comentario en bloque: genera el lexema parcial, se delega su análisis al completarlo
                         dentroComentarioBloque = true;
                         bufferComentarioBloque = "/*";
                         filaInicioComentarioBloque = fila;
@@ -95,7 +105,7 @@ public class Analizador
                     }
                     else if (actual == '#')
                     {
-                        // Procesar cualquier buffer acumulado antes del comentario
+                        // Si hay contenido en buffer pendiente, generar lexema y delegar su análisis
                         if (!string.IsNullOrWhiteSpace(buffer))
                         {
                             Token tokenReconocido = analizadorLexico.AnalizarToken(buffer, fila, columna);
@@ -107,15 +117,19 @@ public class Analizador
                             buffer = string.Empty;
                         }
 
-                        // Crear el token para el comentario simple
-                        string comentario = linea.Substring(i).Trim(); // Extraer el comentario desde '#'
-                        Token tokenComentario = new Token("ComentarioSimple", comentario, fila, columna);
-                        resultado.Add(tokenComentario.ToString());
-                        analizadorLexico.Tokens.Add(tokenComentario);
-                        break; // Terminar procesamiento de la línea, ya que todo lo posterior es parte del comentario
+                        // Generar lexema completo para comentario simple desde '#' hasta el final de la línea
+                        string comentario = linea.Substring(i).Trim();
+                        Token tokenComentario = analizadorLexico.AnalizarToken(comentario, fila, columna);
+                        if (tokenComentario != null)
+                        {
+                            resultado.Add(tokenComentario.ToString());
+                        }
+                        // Finalizar el procesamiento de la línea
+                        break;
                     }
                     else if ("()[]{}".Contains(actual))
                     {
+                        // Si hay contenido previo, genera su lexema primero
                         if (!string.IsNullOrWhiteSpace(buffer))
                         {
                             Token tokenReconocido = analizadorLexico.AnalizarToken(buffer, fila, columna);
@@ -127,16 +141,17 @@ public class Analizador
                             buffer = string.Empty;
                         }
 
+                        // Generar lexema para signo de agrupación
                         Token tokenAgrupacion = analizadorLexico.AnalizarToken(actual.ToString(), fila, columna);
                         if (tokenAgrupacion != null)
                         {
                             resultado.Add(tokenAgrupacion.ToString());
                         }
-
                         columna++;
                     }
                     else if (".,;:".Contains(actual))
                     {
+                        // Caso especial: el punto puede pertenecer a un número decimal
                         if (actual == '.' && !string.IsNullOrWhiteSpace(buffer) &&
                             char.IsDigit(buffer[buffer.Length - 1]) &&
                             i < linea.Length - 1 &&
@@ -146,6 +161,7 @@ public class Analizador
                             continue;
                         }
 
+                        // Si hay contenido en buffer, generar lexema antes de procesar el signo
                         if (!string.IsNullOrWhiteSpace(buffer))
                         {
                             Token tokenReconocido = analizadorLexico.AnalizarToken(buffer, fila, columna);
@@ -157,6 +173,7 @@ public class Analizador
                             buffer = string.Empty;
                         }
 
+                        // Generar lexema para signo de puntuación
                         Token tokenPuntuacion = analizadorLexico.AnalizarToken(actual.ToString(), fila, columna);
                         if (tokenPuntuacion != null)
                         {
@@ -166,12 +183,14 @@ public class Analizador
                     }
                     else if (actual == '"' || actual == '\'')
                     {
+                        // Inicio de un literal: acumula el delimitador y activa modo literal
                         dentroLiteral = true;
                         delimitadorLiteral = actual;
                         buffer += actual;
                     }
                     else if (actual == ' ' || actual == '\t')
                     {
+                        // Espacio o tabulación indica fin de lexema: si hay contenido, generar lexema
                         if (!string.IsNullOrWhiteSpace(buffer))
                         {
                             Token tokenReconocido = analizadorLexico.AnalizarToken(buffer, fila, columna);
@@ -189,10 +208,12 @@ public class Analizador
                     }
                     else
                     {
+                        // Acumular caracter para formar un lexema
                         buffer += actual;
                     }
-                }
+                } // Fin de procesamiento de la línea
 
+                // Al finalizar la línea, si existe un buffer pendiente, generar el lexema
                 if (!string.IsNullOrWhiteSpace(buffer) && !dentroComentarioBloque)
                 {
                     Token tokenReconocido = analizadorLexico.AnalizarToken(buffer, fila, columna);
@@ -201,10 +222,10 @@ public class Analizador
                         resultado.Add(tokenReconocido.ToString());
                     }
                 }
-
                 fila++;
             }
 
+            // Después de procesar todas las líneas, agregar los errores (si existiesen)
             if (analizadorLexico.Errores.Count > 0)
             {
                 resultado.Add("\nErrores encontrados:");

@@ -71,7 +71,7 @@ namespace Analizadores
                 // Solo válido si termina en el estado final QF
                 if (estadoActual == Estado.QF || estadoActual == Estado.Q1)
                 {
-                    return new Token("ComentarioSimple", token, fila, columna);
+                    return new Token("Comentario Simple", token, fila, columna);
                 }
             }
             catch (Exception ex)

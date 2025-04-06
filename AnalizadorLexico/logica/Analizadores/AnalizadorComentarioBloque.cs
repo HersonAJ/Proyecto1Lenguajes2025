@@ -61,7 +61,7 @@ namespace Analizadores
                     if (estadoActual == Estado.QF)
                     {
                         // El comentario es válido
-                        return new Token("ComentarioBloque", texto.Substring(0, i + 2), fila, columna);
+                        return new Token("Comentario Bloque", texto.Substring(0, i + 2), fila, columna);
                     }
                 }
             }

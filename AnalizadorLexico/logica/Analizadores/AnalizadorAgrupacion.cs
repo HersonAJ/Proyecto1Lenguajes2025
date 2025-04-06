@@ -57,7 +57,7 @@ namespace Analizadores
 
                     if (estadoActual == Estado.QF)
                     {
-                        return new Token("SignoAgrupacion", token, fila, columna);
+                        return new Token("Signo Agrupacion", token, fila, columna);
                     }
                 }
             }

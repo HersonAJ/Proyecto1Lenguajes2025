@@ -32,7 +32,7 @@ namespace Analizadores
             catch (Exception ex)
 
             {
-                Console.WriteLine($"errpr al analizar el operador aritmetico: {ex.Message}");
+                Console.WriteLine($"error al analizar el operador aritmetico: {ex.Message}");
             }
 
             return estadoActual;
@@ -51,7 +51,7 @@ namespace Analizadores
 
                     if (estadoActual == Estado.QF)
                     {
-                        return new Token("OperadorAritmetico", token, fila, columna);
+                        return new Token("Operador Aritmetico", token, fila, columna);
                     }
                 }
             }

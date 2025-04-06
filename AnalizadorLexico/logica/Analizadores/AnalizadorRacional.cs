@@ -82,15 +82,15 @@ namespace Analizadores
                 // Clasificar el token según el estado final
                 if (estadoActual == Estado.QF_R && longitud <= 2)
                 {
-                    return new Token("OperadorRelacional", token, fila, columna);
+                    return new Token("Operador Relacional", token, fila, columna);
                 }
                 else if (estadoActual == Estado.QF_A && longitud == 1)
                 {
-                    return new Token("OperadorAsignacion", token, fila, columna);
+                    return new Token("Operador Asignacion", token, fila, columna);
                 }
                 else if (estadoActual == Estado.Q1) // Asegurar que < y > sean aceptados
                 {
-                    return new Token("OperadorRelacional", token, fila, columna);
+                    return new Token("Operador Relacional", token, fila, columna);
                 }
             }
             catch (Exception ex)

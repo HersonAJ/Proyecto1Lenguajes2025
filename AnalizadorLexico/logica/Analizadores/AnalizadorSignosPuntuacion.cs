@@ -50,7 +50,7 @@ namespace Analizadores
 
                     if (estadoActual == Estado.QF)
                     {
-                        return new Token("SignoPuntuacion", token, fila, columna);
+                        return new Token("Signo Puntuacion", token, fila, columna);
                     }
                 }
             }

@@ -107,7 +107,7 @@ namespace Analizadores
                 // Solo es válido si termina en el estado de aceptación QF
                 if (estadoActual == Estado.QF)
                 {
-                    return new Token("OperadorLogico", token, fila, columna);
+                    return new Token("Operador Logico", token, fila, columna);
                 }
             }
             catch (Exception ex)
