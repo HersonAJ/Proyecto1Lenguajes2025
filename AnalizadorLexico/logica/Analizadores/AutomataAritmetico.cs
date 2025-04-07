@@ -2,11 +2,11 @@ using Logica;
 
 namespace Analizadores
 {
-    public class AnalizadorAritmetico
+    public class AutomataAritmetico
     {
         private Estado estadoActual;
 
-        public AnalizadorAritmetico()
+        public AutomataAritmetico()
         {
             estadoActual = Estado.Q0; // Estado inicial
         }

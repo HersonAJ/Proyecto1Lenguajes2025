@@ -2,12 +2,12 @@ using Logica;
 
 namespace Analizadores
 {
-    public class AnalizadorLiteral
+    public class AutomataLiteral
     {
         private Estado estadoActual;
         private char comillaInicio; // Almacena si inició con ' o "
 
-        public AnalizadorLiteral()
+        public AutomataLiteral()
         {
             estadoActual = Estado.Q0; // Estado inicial
             comillaInicio = '\0'; // Sin comilla definida al inicio

@@ -140,11 +140,11 @@ using Logica;
 
 namespace Analizadores
 {
-    public class AnalizadorPalabraReservada
+    public class AutomataPalabraReservada
     {
         private Estado estadoActual;
 
-        public AnalizadorPalabraReservada()
+        public AutomataPalabraReservada()
         {
             estadoActual = Estado.Q0;//estado inicial
         }

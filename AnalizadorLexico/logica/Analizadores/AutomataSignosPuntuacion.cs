@@ -2,11 +2,11 @@ using Logica;
 
 namespace Analizadores
 {
-    public class AnalizadorAgrupacion
+    public class AutomataSignosPuntuacion
     {
         private Estado estadoActual;
 
-        public AnalizadorAgrupacion()
+        public AutomataSignosPuntuacion()
         {
             estadoActual = Estado.Q0; // Estado inicial
         }
@@ -18,56 +18,48 @@ namespace Analizadores
                 switch (estadoActual)
                 {
                     case Estado.Q0:
-                        if (caracter == '(' || caracter == ')' || 
-                            caracter == '[' || caracter == ']' || 
-                            caracter == '{' || caracter == '}')
+                        if (caracter == '.' || caracter == ',' || caracter == ';' || caracter == ':')
                         {
                             estadoActual = Estado.QF; // Transición al estado de aceptación
-                        }
-                        else
-                        {
-                            estadoActual = Estado.Q0; // Carácter no válido
                         }
                         break;
 
                     case Estado.QF:
-                        // No hay más transiciones desde el estado final
+                        // En el estado final no hay más transiciones, se mantiene en QF
                         break;
                 }
             }
             catch (Exception ex)
             {
-                
-                Console.WriteLine($"Error al analizar el carácter: {ex.Message}");
+                Console.WriteLine($"Error al analizar el caracter: {ex.Message}");
             }
 
             return estadoActual;
         }
 
-        public Token ProcesarSignoAgrupacion(string token, int fila, int columna)
+        public Token ProcesarSignoPuntuacion(string token, int fila, int columna)
         {
             try
             {
                 estadoActual = Estado.Q0; // Reiniciar al estado inicial
 
-                if (token.Length == 1) // Los signos de agrupación son de un solo carácter
+                if (token.Length == 1) // Los signos de puntuación son de un solo carácter
                 {
                     char caracter = token[0];
                     AnalizarCaracter(caracter);
 
                     if (estadoActual == Estado.QF)
                     {
-                        return new Token("Signo Agrupacion", token, fila, columna);
+                        return new Token("Signo Puntuacion", token, fila, columna);
                     }
                 }
             }
             catch (Exception ex)
             {
-                
-                Console.WriteLine($"Error al procesar el signo de agrupación: {ex.Message}");
+                Console.WriteLine($"Error al procesar el signo de puntuacion: {ex.Message}");
             }
 
-            // Si no llega al estado de aceptación, no es un signo de agrupación válido
+            // Si no llega al estado de aceptación, no es un signo de puntuación válido
             return null!;
         }
     }
